@@ -1,0 +1,30 @@
+
+.menu-left {
+    background: #1a2cc9;
+    height: 100%;
+    color: whitesmoke;
+
+    .imagen {
+        height: 250px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 7px;
+        background: #bf3a19 !important;
+        border-bottom-style: solid;
+        border-bottom-color: white;
+        border-bottom-width: thin;
+    }
+
+    .menu-sec {
+        cursor: pointer;
+        padding-left: 15px;
+        height: 45px;
+        padding-top: 12px;
+        font-size: 1.2rem;
+    }
+
+    .menu-sec:hover {
+        background: #bf3a19;
+    }
+}
