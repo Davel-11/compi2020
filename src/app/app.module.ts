@@ -9,7 +9,11 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {MatIconModule} from '@angular/material/icon';
 import { IntegrantesComponent } from './content/integrantes/integrantes/integrantes.component';
 import { HomeComponent } from './content/home/home/home.component';
-
+import { SeparadoresComponent } from './content-right/separadores/separadores.component';
+import {MatCardModule} from '@angular/material/card';
+import {MatInputModule} from '@angular/material/input';
+import {MatButtonModule} from '@angular/material/button';
+import { ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -17,13 +21,18 @@ import { HomeComponent } from './content/home/home/home.component';
     MenuLeftComponent,
     ContentRightComponent,
     IntegrantesComponent,
-    HomeComponent
+    HomeComponent,
+    SeparadoresComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     BrowserAnimationsModule,
-    MatIconModule
+    MatIconModule,
+    MatCardModule,
+    MatInputModule,
+    MatButtonModule,
+    ReactiveFormsModule
   ],
   providers: [],
   bootstrap: [AppComponent]

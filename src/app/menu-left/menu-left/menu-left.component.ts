@@ -29,6 +29,12 @@ export class MenuLeftComponent implements OnInit {
       });
     }
 
+    if ( navigateTo === 'separador') {
+      this.router.navigate(['separador'], {
+        queryParams: { }
+      });
+    }
+
   }
 
 }
