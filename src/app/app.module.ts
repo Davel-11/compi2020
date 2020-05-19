@@ -15,6 +15,9 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { CompiladorComponent } from './content/compilador/compilador.component';
 import { TestRockaComponent } from './content/test-rocka/test-rocka.component';
 import { TestOrellanaComponent } from './content/test-orellana/test-orellana.component';
+import {MatTableModule} from '@angular/material/table';
+import {MatDialogModule} from '@angular/material/dialog';
+import { CompierrorComponent } from './content/compilador/compierror/compierror.component';
 
 @NgModule({
   declarations: [
@@ -24,7 +27,8 @@ import { TestOrellanaComponent } from './content/test-orellana/test-orellana.com
     HomeComponent,
     CompiladorComponent,
     TestRockaComponent,
-    TestOrellanaComponent
+    TestOrellanaComponent,
+    CompierrorComponent
   ],
   imports: [
     BrowserModule,
@@ -34,7 +38,9 @@ import { TestOrellanaComponent } from './content/test-orellana/test-orellana.com
     MatCardModule,
     MatInputModule,
     MatButtonModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    MatTableModule,
+    MatDialogModule
   ],
   providers: [],
   bootstrap: [AppComponent]
