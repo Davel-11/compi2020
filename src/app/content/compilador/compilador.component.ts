@@ -1,20 +1,19 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormControl } from '@angular/forms';
-import { platform } from 'os';
 
 @Component({
-  selector: 'app-separadores',
-  templateUrl: './separadores.component.html',
-  styleUrls: ['./separadores.component.scss']
+  selector: 'app-compilador',
+  templateUrl: './compilador.component.html',
+  styleUrls: ['./compilador.component.scss']
 })
-export class SeparadoresComponent implements OnInit {
+export class CompiladorComponent implements OnInit {
 
   form: FormGroup;
   totalSpaces = 0;
   totalLines = 0;
   totalWords = 0;
   totalRepeated;
-  
+
   constructor() { }
 
   ngOnInit() {
@@ -53,7 +52,7 @@ export class SeparadoresComponent implements OnInit {
     return tempSec.length;
 
   }
-  
+
 
   getTotalWords(text: any) {
 
@@ -77,7 +76,7 @@ export class SeparadoresComponent implements OnInit {
         if ( i !== j ) {
 
             if ( tempSec[i] === tempSec[j] ) {
-              
+
               total++;
 
               let found = palabras.find( obj => obj.palabra ===  tempSec[i] );

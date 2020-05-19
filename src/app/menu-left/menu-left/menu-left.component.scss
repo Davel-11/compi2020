@@ -1,22 +1,26 @@
 
 .menu-left {
-    background: #1a2cc9;
-    height: 100%;
-    color: whitesmoke;
+    background: whitesmoke;
+    height: calc( 100vh - 15px );
+    color: slategray;
 
     .imagen {
-        height: 250px;
+        
+        height: 225px;
         display: flex;
         align-items: center;
         justify-content: center;
         padding: 7px;
-        background: #bf3a19 !important;
+        padding-top: 25px;
+        background: whitesmoke;
         // border-bottom-style: solid;
         // border-bottom-color: white;
         // border-bottom-width: thin;
+        margin-bottom: 60px;
     }
 
     .menu-sec {
+        margin-top: 15px;
         cursor: pointer;
         padding-left: 15px;
         height: 45px;
@@ -26,5 +30,11 @@
 
     .menu-sec:hover {
         background: #bf3a19;
+        color: whitesmoke;
+    }
+
+    .is-on {
+        background: #bf3a19;
+        color: whitesmoke;
     }
 }
