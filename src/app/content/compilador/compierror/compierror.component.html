@@ -15,7 +15,12 @@
 
             <div *ngIf="i.errorType === 'parentesis' "
                   class="col-12 error" >
-                  Error en linea {{ i.index +1 }} - Error de parentesis
+                  {{ 'Error en linea ' +  (i.index +1)  + ' - Error de parentesis '  }}
+            </div>
+
+            <div *ngIf="i.errorType === 'structure' "
+                  class="col-12 error" >
+                  {{ 'Error en linea ' +  (i.index+1)  + ' - ' + (i.message?i.message:'')   }}
             </div>
 
     </div>

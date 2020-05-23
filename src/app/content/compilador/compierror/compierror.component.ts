@@ -26,10 +26,12 @@ export class CompierrorComponent implements OnInit {
           this.finalErrorList.push( {
             line: this.data.list[obj.index],
             errorType: obj.errorType,
-            index: obj.index
+            index: obj.index,
+            message: obj.message ? obj.message : ''
           });
         });
-        console.log('Erro list is', this.finalErrorList);
+
+        console.log('Error list is', this.finalErrorList);
 
     }
 

@@ -25,7 +25,7 @@ const ELEMENT_DATA: any[] = [
 })
 export class CompiladorComponent implements OnInit {
 
-  displayedColumns: string[] = ['id', 'Token', 'Categoria', 'Tipo', 'Valor', 'Prioridad' ];
+  displayedColumns: string[] = ['id', 'Token', 'Categoria', 'Tipo', 'Valor', 'Prioridad'];
   dataSource = ELEMENT_DATA;
 
   form: FormGroup;
@@ -56,95 +56,87 @@ export class CompiladorComponent implements OnInit {
 
   processData() {
 
-        this.erroList = [];
-        const textToProcess = this.form.get('input').value;
+    this.erroList = [];
+    const textToProcess = this.form.get('input').value;
 
-        // PASO 1, PASAR EL TEXTO A LINEAS
-        let listOfLines = this.getLinesInArray(textToProcess);
+    // PASO 1, PASAR EL TEXTO A LINEAS
+    let listOfLines = this.getLinesInArray(textToProcess);
 
-        // PASO 2. QUITAR ESPACIOS EN BLANCO
-        listOfLines = this.removeAllWhiteSpaces(listOfLines);
+    // PASO 2. QUITAR ESPACIOS EN BLANCO || trim
+    listOfLines = this.removeAllWhiteSpaces(listOfLines);
 
-        // PASO 3.  CONFIRMAR PUNTO Y COMA
-        listOfLines = this.checkIfSemiColon(listOfLines);
+    // PASO 3.  Validar PUNTO Y COMA
+    this.checkIfSemiColon(listOfLines);
 
-        // PASO 4. CHECKEAR PARENTESIS
-        this.checkParentesis(listOfLines);
+    // PASO 4. Validar PARENTESIS
+    this.checkParentesis(listOfLines);
 
-        // CONFIRMAR SI HAY ERROR
-        if ( this.erroList.length > 0 ) {
-              this.callError(listOfLines);
-        }
+    // PASO 5. * Validar estructura de operacion
+    this.checkFormulaStructure(listOfLines);
+
+    // CONFIRMAR SI HAY ERROR
+    if (this.erroList.length > 0) {
+      this.callError(listOfLines);
+    }
   }
 
-  getLinesInArray(text: any ) {
+  getLinesInArray(text: any) {
     const tempOne = text;
     const tempSec = tempOne.split('\n');
     return tempSec;
   }
 
-  removeAllWhiteSpaces( list: any[] ) {
-      const newTempList = [];
+  removeAllWhiteSpaces(list: any[]) {
+    const newTempList = [];
 
-      if ( list.length > 0 ) {
+    if (list.length > 0) {
 
-        list.forEach(obj => {
-          if ( obj !== '' ) {
-            newTempList.push(obj.trim());
-          }
-        });
+      list.forEach(obj => {
+        if (obj !== '') {
+          newTempList.push(obj.trim());
+        }
+      });
 
-        // newTempList.forEach( (obj: string, index: number) => {
-        //   newTempList[index] = obj.replace(/\s/g, '');
-        // });
-
-      }
-
-      return newTempList;
-  }
-
-  checkIfSemiColon( lineTocheck: string[] ) {
-
-    if ( lineTocheck.length > 0 ) {
-
-          let index2 = 0;
-
-          lineTocheck.forEach( obj => {
-
-              let receivedString = '';
-              receivedString = obj.toString();
-              const response = receivedString.charAt( receivedString.length - 1);
-
-              if ( response !== ';' ) {
-                this.erroList.push({ index: index2, errorType: 'Semicolon' });
-              }
-
-              index2++;
-          });
-
-          return lineTocheck;
-    } else {
-
-      return [];
+      // newTempList.forEach( (obj: string, index: number) => {
+      //   newTempList[index] = obj.replace(/\s/g, '');
+      // });
 
     }
 
+    return newTempList;
   }
 
-  checkParentesis( linesToCheck: string[] ) {
+  checkIfSemiColon(lineTocheck: string[]) {
+
+    if (lineTocheck.length > 0) {
+
+      let indexIs = 0;
+      lineTocheck.forEach(obj => {
+
+        let receivedString = '';
+        receivedString = obj.toString();
+        const response = receivedString.charAt(receivedString.length - 1);
+
+        if (response !== ';') {
+          this.erroList.push({ index: indexIs, errorType: 'Semicolon' });
+        }
+
+        indexIs++;
+      });
+    }
+  }
+
+  checkParentesis(linesToCheck: string[]) {
 
     const tempList = linesToCheck;
 
-    if ( tempList.length > 0 ) {
+    if (tempList.length > 0) {
 
-      tempList.forEach( ( obj: string, index: number  ) => {
+      tempList.forEach((obj: string, index: number) => {
 
-        if ( this.checkIfIsFormula(obj) ) {
-          // Es una Formula!!
-          console.log('is Formula', obj);
+        if (this.checkIfIsFormula(obj)) {
           this.findParentesis(obj, index);
         }
-
       });
 
     }
@@ -163,28 +155,139 @@ export class CompiladorComponent implements OnInit {
     const tempSec = wordList.split(')');
     totalParentesisCierre = tempSec.length;
 
-    const totalOpen =  totalParentesisApertura - 1;
-    const totalClose = totalParentesisCierre  - 1;
+    const totalOpen = totalParentesisApertura - 1;
+    const totalClose = totalParentesisCierre - 1;
 
-    if ( totalOpen !== totalClose  ) {
+    if (totalOpen !== totalClose) {
       this.erroList.push({
         index: indexIs,
         errorType: 'parentesis',
-        open: totalOpen,
-        close:  totalClose
+        message: ' Parentesis Abiertos ' + totalOpen + ' Parentesis Cerrados ' + totalClose,
       });
     }
 
   }
 
   callError(listOfLines: any) {
-    this.matDialog.open( CompierrorComponent, {
+    this.matDialog.open(CompierrorComponent, {
       width: '700px',
       data: {
         list: listOfLines,
         errorList: this.erroList
       }
     });
+  }
+
+  checkFormulaStructure(listOfLines: any[]) {
+    if (listOfLines.length > 0) {
+
+      listOfLines.forEach((obj: string, index: number) => {
+
+        const spitFormula = obj.split('=');
+
+        if ( this.checkIfIsFormula(obj) ) {
+
+              if ( obj.includes('+') ) {
+                this.splitAndCheck('+', spitFormula[1], index);
+              }
+
+              if ( obj.includes('-') ) {
+                this.splitAndCheck('-', spitFormula[1], index);
+              }
+
+              if ( obj.includes('/') ) {
+                this.splitAndCheck('/', spitFormula[1], index);
+              }
+
+              if ( obj.includes('*') ) {
+                this.splitAndCheck('*', spitFormula[1], index);
+              }
+
+        }
+
+      });
+
+    }
+  }
+
+  splitAndCheck(sign: string, textToSplit: string, indexIs: number) {
+
+    console.log('split by', sign);
+    // quitar espacions en blanco
+    const textToWork = textToSplit.replace(/\s/g, '');
+    // split by simbolo
+    const tempArray = textToWork.split(sign);
+    // arreglo
+    console.log('tempArray is', tempArray);
+
+    tempArray.forEach(obj => {
+
+      if (obj.length > 1) {
+
+              // caracter inicial
+              if (
+                obj[0] === '+' ||
+                obj[0] === '-' ||
+                obj[0] === '/' ||
+                obj[0] === '*' ||
+                obj[0] === '' ||
+                obj[0] === ')'
+                 ) {
+
+                this.erroList.push({
+                  index: indexIs,
+                  errorType: 'structure',
+                  message: 'Error de estructura - cerca de simbolo >> ' + sign,
+                });
+
+              }
+
+              // carater final
+              if (
+                obj[obj.length - 1] === '+' ||
+                obj[obj.length - 1] === '-' ||
+                obj[obj.length - 1] === '/' ||
+                obj[obj.length - 1] === '*' ||
+                obj[obj.length - 1] === ''  ||
+                obj[obj.length - 1] === '('
+                ) {
+                this.erroList.push({
+                  index: indexIs,
+                  errorType: 'structure',
+                  message: '*Error de estructura - cerca de simbolo >>> ' + sign,
+                });
+              }
+
+      } else  if (obj.length === 1 ) {
+              // solo es un caracter
+              if (obj === '+' || obj === '-' || obj === '/' || obj === '*' || obj === '' || obj === ';' ) {
+                this.erroList.push({
+                  index: indexIs,
+                  errorType: 'structure',
+                  message: 'Error de Estructura cerca de simbolo > ' + sign,
+                });
+              }
+      } else  if (obj.length === 0 ) {
+
+        this.erroList.push({
+            index: indexIs,
+            errorType: 'structure',
+            message: 'Error de Estructura cerca de simbolo > ' + sign,
+          });
+}
+
+    });
+
+    if ( textToWork.length <= 3 ) {
+
+      this.erroList.push({
+        index: indexIs,
+        errorType: 'structure',
+        message: 'Error de Estructura cerca de simbolo, debe tener al menos 3 datos para poder procesar',
+      });
+
+    }
+
   }
 
   checkIfIsFormula(objToCheck: string) {
@@ -195,11 +298,11 @@ export class CompiladorComponent implements OnInit {
       objToCheck.toLowerCase().includes('*') ||
       objToCheck.toLowerCase().includes(')') ||
       objToCheck.toLowerCase().includes('(')
-      ) {
-        return true;
-      } else {
-        return  false;
-      }
+    ) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   showFile(e: any): any {
@@ -207,7 +310,7 @@ export class CompiladorComponent implements OnInit {
     e.preventDefault();
     const reader = new FileReader();
 
-    reader.onload = async ( xe: any) => {
+    reader.onload = async (xe: any) => {
       this.form.get('input').setValue(xe.target.result);
     };
 
