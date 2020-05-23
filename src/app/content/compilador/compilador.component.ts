@@ -3,6 +3,7 @@ import { FormGroup, FormControl } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { ThrowStmt } from '@angular/compiler';
 import { CompierrorComponent } from './compierror/compierror.component';
+import { ObjectUnsubscribedError } from 'rxjs';
 
 
 const ELEMENT_DATA: any[] = [
@@ -67,25 +68,113 @@ export class CompiladorComponent implements OnInit {
         // PASO 3.  CONFIRMAR PUNTO Y COMA
         listOfLines = this.checkIfSemiColon(listOfLines);
 
-        console.log("Final list is", listOfLines)
+        // PASO 4. CHECKEAR PARENTESIS
+        this.checkParentesis(listOfLines);
 
-        // if Error
+        // CONFIRMAR SI HAY ERROR
         if ( this.erroList.length > 0 ) {
               this.callError(listOfLines);
         }
   }
 
+  getLinesInArray(text: any ) {
+    const tempOne = text;
+    const tempSec = tempOne.split('\n');
+    return tempSec;
+  }
+
   removeAllWhiteSpaces( list: any[] ) {
-      let newTempList = [];
+      const newTempList = [];
+
       if ( list.length > 0 ) {
 
         list.forEach(obj => {
           if ( obj !== '' ) {
             newTempList.push(obj.trim());
           }
-        })
+        });
+
+        // newTempList.forEach( (obj: string, index: number) => {
+        //   newTempList[index] = obj.replace(/\s/g, '');
+        // });
+
       }
+
       return newTempList;
+  }
+
+  checkIfSemiColon( lineTocheck: string[] ) {
+
+    if ( lineTocheck.length > 0 ) {
+
+          let index2 = 0;
+
+          lineTocheck.forEach( obj => {
+
+              let receivedString = '';
+              receivedString = obj.toString();
+              const response = receivedString.charAt( receivedString.length - 1);
+
+              if ( response !== ';' ) {
+                this.erroList.push({ index: index2, errorType: 'Semicolon' });
+              }
+
+              index2++;
+          });
+
+          return lineTocheck;
+    } else {
+
+      return [];
+
+    }
+
+  }
+
+  checkParentesis( linesToCheck: string[] ) {
+
+    const tempList = linesToCheck;
+
+    if ( tempList.length > 0 ) {
+
+      tempList.forEach( ( obj: string, index: number  ) => {
+
+        if ( this.checkIfIsFormula(obj) ) {
+          // Es una Formula!!
+          console.log('is Formula', obj);
+          this.findParentesis(obj, index);
+        }
+
+      });
+
+    }
+
+    return tempList;
+  }
+
+  findParentesis(wordList: string, indexIs: number) {
+
+    let totalParentesisApertura = 0;
+    let totalParentesisCierre = 0;
+
+    const tempOne = wordList.split('(');
+    totalParentesisApertura = tempOne.length;
+
+    const tempSec = wordList.split(')');
+    totalParentesisCierre = tempSec.length;
+
+    const totalOpen =  totalParentesisApertura - 1;
+    const totalClose = totalParentesisCierre  - 1;
+
+    if ( totalOpen !== totalClose  ) {
+      this.erroList.push({
+        index: indexIs,
+        errorType: 'parentesis',
+        open: totalOpen,
+        close:  totalClose
+      });
+    }
+
   }
 
   callError(listOfLines: any) {
@@ -98,102 +187,32 @@ export class CompiladorComponent implements OnInit {
     });
   }
 
-  getTotalSpaces(text: any): number {
-    const tempOne = text;
-    const tempSec = tempOne.split(' ');
-    return tempSec.length - 1;
-  }
-
-  getTotalLines(text: any ) {
-    const tempOne = text;
-    const tempSec = tempOne.split('\n');
-    return tempSec.length;
-  }
-
-  getTotalWords(text: any) {
-    const tempOne = text;
-    const tempSec = tempOne.split(' ');
-    return tempSec.length + 1;
-  }
-
-  getTotalRepeatedWords(text: any) {
-
-    const tempOne = text;
-    const tempSec = tempOne.split(' ');
-    let total = 0;
-    let palabras = [];
-
-    for ( let i = 0; i < tempSec.length; i++ ) {
-
-      for ( let j = 0; j < tempSec.length; j++ ) {
-
-        if ( i !== j ) {
-
-            if ( tempSec[i] === tempSec[j] ) {
-
-              total++;
-
-              let found = palabras.find( obj => obj.palabra ===  tempSec[i] );
-
-              if ( !found ) {
-                  palabras.push({ palabraRepetida: tempSec[i] });
-              }
-
-            }
-
-        }
-
+  checkIfIsFormula(objToCheck: string) {
+    if (
+      objToCheck.toLowerCase().includes('+') ||
+      objToCheck.toLowerCase().includes('-') ||
+      objToCheck.toLowerCase().includes('/') ||
+      objToCheck.toLowerCase().includes('*') ||
+      objToCheck.toLowerCase().includes(')') ||
+      objToCheck.toLowerCase().includes('(')
+      ) {
+        return true;
+      } else {
+        return  false;
       }
-
-    }
-
-    return JSON.stringify(palabras);
-
   }
 
-  getLinesInArray(text: any ) {
-    const tempOne = text;
-    const tempSec = tempOne.split('\n');
-    return tempSec;
-  }
-
-  checkIfSemiColon( lineTocheck: string[] ) {
-
-      if ( lineTocheck.length > 0 ) {
-
-            let index = 0;
-
-            lineTocheck.forEach( obj => {
-
-                let receivedString = '';
-                receivedString = obj.toString();
-                console.log("list to check is", receivedString)
-                const response = receivedString.charAt( receivedString.length - 1);
-
-              console.log("Respone", response)
-                if ( response !== ';' ) {
-                  this.erroList.push({ index: index, errorType: 'Semicolon' });
-                }
-
-                index++;
-            });
-
-          }
-
-    return lineTocheck;
-  }
-
-  showFile(e: any) :any {
+  showFile(e: any): any {
 
     e.preventDefault();
     const reader = new FileReader();
 
-    reader.onload = async (e:any) => {
-      this.form.get('input').setValue(e.target.result);
+    reader.onload = async ( xe: any) => {
+      this.form.get('input').setValue(xe.target.result);
     };
 
     reader.readAsText(e.target.files[0]);
 
-  };
+  }
 
 }

@@ -4,11 +4,19 @@
   
     <div class="row mx-0" *ngFor="let i of finalErrorList ">
 
-            <div class="col-12 mt-2" [ngClass]="[ i.errorType === 'Semicolon' ? 'semi-colon' : ''  ]" >                 
-                {{ i.line  }}                
+            <div class="col-12 mt-2 line">                 
+                {{ i.line }}
             </div>
 
-            <div *ngIf="i.errorType === 'Semicolon' " class="error" > Error en linea {{ i.index +1 }} - Falta 'Punto y Coma'  </div>
+            <div *ngIf="i.errorType === 'Semicolon' "
+                  class="col-12 error" >
+                  Error en linea {{ i.index +1 }} - Falta 'Punto y Coma'
+            </div>
+
+            <div *ngIf="i.errorType === 'parentesis' "
+                  class="col-12 error" >
+                  Error en linea {{ i.index +1 }} - Error de parentesis
+            </div>
 
     </div>
 
