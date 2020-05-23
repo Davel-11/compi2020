@@ -5,34 +5,94 @@ import { ThrowStmt } from '@angular/compiler';
 import { CompierrorComponent } from './compierror/compierror.component';
 import { ObjectUnsubscribedError } from 'rxjs';
 
-
 const ELEMENT_DATA: any[] = [
-  { id: 1, Token: ' = ', Categoria: 'Igualdador', Tipo: 'Igualador', Valor: '-', Prioridad: '1' },
-  { id: 1, Token: ' Temp1 ', Categoria: 'Variable', Tipo: 'Variable', Valor: '-', Prioridad: '-' },
-  { id: 1, Token: ' Temp1 ', Categoria: 'Variable', Tipo: 'Variable', Valor: '-', Prioridad: '-' },
-  { id: 1, Token: ' Temp1 ', Categoria: 'Variable', Tipo: 'Variable', Valor: '-', Prioridad: '-' },
-  { id: 1, Token: ' Temp1 ', Categoria: 'Variable', Tipo: 'Variable', Valor: '-', Prioridad: '-' },
-  { id: 1, Token: ' Temp1 ', Categoria: 'Variable', Tipo: 'Variable', Valor: '-', Prioridad: '-' },
-  { id: 1, Token: ' Temp1 ', Categoria: 'Variable', Tipo: 'Variable', Valor: '-', Prioridad: '-' },
+  {
+    id: 1,
+    Token: ' = ',
+    Categoria: 'Igualdador',
+    Tipo: 'Igualador',
+    Valor: '-',
+    Prioridad: '1',
+  },
+  {
+    id: 1,
+    Token: ' Temp1 ',
+    Categoria: 'Variable',
+    Tipo: 'Variable',
+    Valor: '-',
+    Prioridad: '-',
+  },
+  {
+    id: 1,
+    Token: ' Temp1 ',
+    Categoria: 'Variable',
+    Tipo: 'Variable',
+    Valor: '-',
+    Prioridad: '-',
+  },
+  {
+    id: 1,
+    Token: ' Temp1 ',
+    Categoria: 'Variable',
+    Tipo: 'Variable',
+    Valor: '-',
+    Prioridad: '-',
+  },
+  {
+    id: 1,
+    Token: ' Temp1 ',
+    Categoria: 'Variable',
+    Tipo: 'Variable',
+    Valor: '-',
+    Prioridad: '-',
+  },
+  {
+    id: 1,
+    Token: ' Temp1 ',
+    Categoria: 'Variable',
+    Tipo: 'Variable',
+    Valor: '-',
+    Prioridad: '-',
+  },
+  {
+    id: 1,
+    Token: ' Temp1 ',
+    Categoria: 'Variable',
+    Tipo: 'Variable',
+    Valor: '-',
+    Prioridad: '-',
+  },
 ];
-
-
 
 @Component({
   selector: 'app-compilador',
   templateUrl: './compilador.component.html',
-  styleUrls: ['./compilador.component.scss']
+  styleUrls: ['./compilador.component.scss'],
 })
 export class CompiladorComponent implements OnInit {
-
-  displayedColumns: string[] = ['id', 'Token', 'Categoria', 'Tipo', 'Valor', 'Prioridad'];
-  dataSource = ELEMENT_DATA;
+  displayedColumns: string[] = [
+    'id',
+    'token',
+    'category',
+    'type',
+    'valToken',
+    'priority',
+  ];
+  dataSource = [];
 
   form: FormGroup;
   totalSpaces = 0;
   totalLines = 0;
   totalWords = 0;
   totalRepeated;
+  textArraySpacesGroupLines = [];
+  declarationTokens = [{
+    token: undefined,
+    category: undefined,
+    type: undefined,
+    valToken: undefined,
+    priority: undefined
+  }];
 
   dataValue = '';
 
@@ -40,42 +100,78 @@ export class CompiladorComponent implements OnInit {
 
   binaryTree = [];
 
-  operaciones = [ '+', '-', '/', '*' ];
+  operaciones = ['+', '-', '/', '*'];
 
   constructor(
     public matDialog: MatDialog
   ) { }
 
   ngOnInit() {
-
     this.form = new FormGroup({
-      input: new FormControl(this.dataValue)
+      input: new FormControl(this.dataValue),
     });
-
   }
 
-  onSubmit() {
+  onSubmit() { }
 
+  // obtiene todo el texto lo separa por saltos de linea y cada linea es un objeto por espacios
+  textToarrayTable(text) {
+    // cada linea se vuelve un array
+    var textLines = [];
+    textLines = text.split('\n');
+    // se crea un array por cada linea, y el array contiene las separaciones por espacio
+    for (var i = 0; i < textLines.length; i++) {
+      var lineArray = textLines[i].toString().split(' '); //  separa por espacios
+      this.textArraySpacesGroupLines.push(lineArray); // añade el array por espacio al array de lineas
+    }
+    // console.log('=====spread===============================');
+    // console.log(
+    //   'Array de spacios agrupado por lineas: ',
+    //   this.textArraySpacesGroupLines
+    // );
+    // console.log('====================================');
+  }
+
+  dataGeneralTable(arrayLineSpaces) {
+
+    for (const item of arrayLineSpaces) {
+      if (item.includes('As')) {
+        if (item.length == 3) {
+          //console.log('decalración: ', item);
+          this.declarationTokens.push({ token: item[0], category: undefined, type: item[2], valToken: undefined, priority: undefined });
+        }
+        if (item.length == 5) {
+          // console.log('asignación: ', item);
+          this.declarationTokens.push({ token: item[0], category: undefined, type: item[2], valToken: item[4], priority: undefined });
+
+
+        }
+      }
+
+    }
+    console.log('======TABLITA==============================');
+    // console.log(this.declarationTokens);
+    this.dataSource = this.declarationTokens;
+    console.log('====================================');
   }
 
   processData() {
-
     this.erroList = [];
     const textToProcess = this.form.get('input').value;
 
-    // PASO 1, PASAR EL TEXTO A LINEAS
+    //  PASO 1, PASAR EL TEXTO A LINEAS
     let listOfLines = this.getLinesInArray(textToProcess);
 
-    // PASO 2. QUITAR ESPACIOS EN BLANCO || trim
+    //  PASO 2. QUITAR ESPACIOS EN BLANCO || trim
     listOfLines = this.removeAllWhiteSpaces(listOfLines);
 
-    // PASO 3.  Validar PUNTO Y COMA
+    //  PASO 3.  Validar PUNTO Y COMA
     this.checkIfSemiColon(listOfLines);
 
-    // PASO 4. Validar PARENTESIS
+    //  PASO 4. Validar PARENTESIS
     this.checkParentesis(listOfLines);
 
-    // PASO 5. * Validar estructura de operacion
+    //  PASO 5. * Validar estructura de operacion
     this.checkFormulaStructure(listOfLines);
 
 
@@ -86,6 +182,10 @@ export class CompiladorComponent implements OnInit {
     if (this.erroList.length > 0) {
       this.callError(listOfLines);
     }
+
+    // 
+    this.textToarrayTable(textToProcess);
+    this.dataGeneralTable(this.textArraySpacesGroupLines);
   }
 
   getLinesInArray(text: any) {
@@ -98,29 +198,24 @@ export class CompiladorComponent implements OnInit {
     const newTempList = [];
 
     if (list.length > 0) {
-
-      list.forEach(obj => {
+      list.forEach((obj) => {
         if (obj !== '') {
           newTempList.push(obj.trim());
         }
       });
 
-      // newTempList.forEach( (obj: string, index: number) => {
-      //   newTempList[index] = obj.replace(/\s/g, '');
-      // });
-
+      //  newTempList.forEach( (obj: string, index: number) => {
+      //    newTempList[index] = obj.replace(/\s/g, '');
+      //  });
     }
 
     return newTempList;
   }
 
   checkIfSemiColon(lineTocheck: string[]) {
-
     if (lineTocheck.length > 0) {
-
       let indexIs = 0;
-      lineTocheck.forEach(obj => {
-
+      lineTocheck.forEach((obj) => {
         let receivedString = '';
         receivedString = obj.toString();
         const response = receivedString.charAt(receivedString.length - 1);
@@ -135,25 +230,20 @@ export class CompiladorComponent implements OnInit {
   }
 
   checkParentesis(linesToCheck: string[]) {
-
     const tempList = linesToCheck;
 
     if (tempList.length > 0) {
-
       tempList.forEach((obj: string, index: number) => {
-
         if (this.checkIfIsFormula(obj)) {
           this.findParentesis(obj, index);
         }
       });
-
     }
 
     return tempList;
   }
 
   findParentesis(wordList: string, indexIs: number) {
-
     let totalParentesisApertura = 0;
     let totalParentesisCierre = 0;
 
@@ -170,10 +260,13 @@ export class CompiladorComponent implements OnInit {
       this.erroList.push({
         index: indexIs,
         errorType: 'parentesis',
-        message: ' Parentesis Abiertos ' + totalOpen + ' Parentesis Cerrados ' + totalClose,
+        message:
+          ' Parentesis Abiertos ' +
+          totalOpen +
+          ' Parentesis Cerrados ' +
+          totalClose,
       });
     }
-
   }
 
   callError(listOfLines: any) {
@@ -181,16 +274,14 @@ export class CompiladorComponent implements OnInit {
       width: '700px',
       data: {
         list: listOfLines,
-        errorList: this.erroList
-      }
+        errorList: this.erroList,
+      },
     });
   }
 
   checkFormulaStructure(listOfLines: any[]) {
     if (listOfLines.length > 0) {
-
       listOfLines.forEach((obj: string, index: number) => {
-
         const spitFormula = obj.split('=');
 
         if (this.checkIfIsFormula(obj)) {
@@ -212,9 +303,7 @@ export class CompiladorComponent implements OnInit {
           }
 
         }
-
       });
-
     }
   }
 
@@ -222,13 +311,27 @@ export class CompiladorComponent implements OnInit {
 
     // quitar espacions en blanco
     const textToWork = textToSplit.replace(/\s/g, '');
-    // split by simbolo
+    //  split by simbolo
     const tempArray = textToWork.split(sign);
     // arreglo
 
-    tempArray.forEach(obj => {
-
+    tempArray.forEach((obj) => {
       if (obj.length > 1) {
+        //  caracter inicial
+        if (
+          obj[0] === '+' ||
+          obj[0] === '-' ||
+          obj[0] === '/' ||
+          obj[0] === '*' ||
+          obj[0] === '' ||
+          obj[0] === ')'
+        ) {
+          this.erroList.push({
+            index: indexIs,
+            errorType: 'structure',
+            message: 'Error de estructura - cerca de simbolo >> ' + sign,
+          });
+        }
 
         // caracter inicial
         if (
@@ -270,6 +373,22 @@ export class CompiladorComponent implements OnInit {
           this.erroList.push({
             index: indexIs,
             errorType: 'structure',
+            message: '*Error de estructura - cerca de simbolo >>> ' + sign,
+          });
+        }
+      } else if (obj.length === 1) {
+        //  solo es un caracter
+        if (
+          obj === '+' ||
+          obj === '-' ||
+          obj === '/' ||
+          obj === '*' ||
+          obj === '' ||
+          obj === ';'
+        ) {
+          this.erroList.push({
+            index: indexIs,
+            errorType: 'structure',
             message: 'Error de Estructura cerca de simbolo > ' + sign,
           });
         }
@@ -289,11 +408,10 @@ export class CompiladorComponent implements OnInit {
       this.erroList.push({
         index: indexIs,
         errorType: 'structure',
-        message: 'Error de Estructura cerca de simbolo, debe tener al menos 3 datos para poder procesar',
+        message:
+          'Error de Estructura cerca de simbolo, debe tener al menos 3 datos para poder procesar',
       });
-
     }
-
   }
 
   checkIfIsFormula(objToCheck: string) {
@@ -312,7 +430,6 @@ export class CompiladorComponent implements OnInit {
   }
 
   showFile(e: any): any {
-
     e.preventDefault();
     const reader = new FileReader();
 
@@ -321,7 +438,6 @@ export class CompiladorComponent implements OnInit {
     };
 
     reader.readAsText(e.target.files[0]);
-
   }
 
   generateBinaryTree(formulas: string[]) {
@@ -331,24 +447,24 @@ export class CompiladorComponent implements OnInit {
 
     formulas.forEach(obj => {
 
-        if (this.checkIfIsFormula(obj)) {
+      if (this.checkIfIsFormula(obj)) {
 
-          if ( true )  {
-              // remove punto y coma
-          }
+        if (true) {
+          // remove punto y coma
+        }
 
-          if (obj.includes('=')) {
+        if (obj.includes('=')) {
 
-            const miniTree = obj.split('=');
-            this.binaryTree.push({ fatherNode: '=', nodeLeft: null, nodeRight: miniTree[1] });
+          const miniTree = obj.split('=');
+          this.binaryTree.push({ fatherNode: '=', nodeLeft: null, nodeRight: miniTree[1] });
 
-            if ( obj.includes('+') ) {
+          if (obj.includes('+')) {
 
-              this.createMiniTree('+', miniTree[1] );
+            this.createMiniTree('+', miniTree[1]);
 
-            }
           }
         }
+      }
     });
 
     console.log('finaly binary tree is ', this.binaryTree);
@@ -357,44 +473,33 @@ export class CompiladorComponent implements OnInit {
 
   createMiniTree(splitType: string, stringToSplite: string, position?: string) {
 
-      const miniTree = stringToSplite.split(splitType);
+    const miniTree = stringToSplite.split(splitType);
 
-      if ( miniTree.length === 2 ) {
+    if (miniTree.length === 2) {
 
-        this.binaryTree.push({ fatherNode: splitType, nodeLeft: miniTree[0], nodeRight: miniTree[1] });
+      this.binaryTree.push({ fatherNode: splitType, nodeLeft: miniTree[0], nodeRight: miniTree[1] });
 
-      } else if ( miniTree.length > 2 ) {
+    } else if (miniTree.length > 2) {
 
-        let nodeInfo = '';
+      let nodeInfo = '';
 
-        miniTree.forEach((obj2: string, index: number) => {
+      miniTree.forEach((obj2: string, index: number) => {
 
-          if (index !== 0) {
+        if (index !== 0) {
 
-            if (index === 1) {
-              nodeInfo += obj2;
+          if (index === 1) {
+            nodeInfo += obj2;
 
-            } else {
-              nodeInfo += splitType + obj2;
-            }
-
+          } else {
+            nodeInfo += splitType + obj2;
           }
 
-        });
+        }
 
-        this.binaryTree.push({ fatherNode: splitType, nodeLeft: miniTree[0], nodeRight: nodeInfo });
+      });
 
-        this.operaciones.forEach( op => {
 
-            if ( nodeInfo.includes(op) ) {
-
-              this.createMiniTree( op, nodeInfo );
-
-            }
-
-        });
-
-      }
+    }
 
   }
 
