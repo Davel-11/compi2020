@@ -58,40 +58,44 @@ export class CompiladorComponent implements OnInit {
         this.erroList = [];
         const textToProcess = this.form.get('input').value;
 
-        this.totalSpaces = this.getTotalSpaces(textToProcess);
-        this.totalLines = this.getTotalLines(textToProcess);
-        this.totalWords = this.getTotalWords(textToProcess);
-        this.totalRepeated = this.getTotalRepeatedWords(textToProcess);
+        // PASO 1, PASAR EL TEXTO A LINEAS
+        let listOfLines = this.getLinesInArray(textToProcess);
 
-        const listOfLines = this.getLinesInArray(textToProcess);
+        // PASO 2. QUITAR ESPACIOS EN BLANCO
+        listOfLines = this.removeAllWhiteSpaces(listOfLines);
 
-        if ( listOfLines.length > 0 ) {
+        // PASO 3.  CONFIRMAR PUNTO Y COMA
+        listOfLines = this.checkIfSemiColon(listOfLines);
 
-          let index = 0;
-          listOfLines.forEach( obj => {
+        console.log("Final list is", listOfLines)
 
-            if ( obj.toString().trim() !== '' ) {
-              this.checkIfSemiColon(obj, index);
-            }
-
-            index++;
-          });
-
-        }
-
+        // if Error
         if ( this.erroList.length > 0 ) {
-
-          this.matDialog.open( CompierrorComponent, {
-            width: '700px',
-            data: {
-              list: listOfLines,
-              errorList: this.erroList
-            }
-          });
-
+              this.callError(listOfLines);
         }
+  }
 
+  removeAllWhiteSpaces( list: any[] ) {
+      let newTempList = [];
+      if ( list.length > 0 ) {
 
+        list.forEach(obj => {
+          if ( obj !== '' ) {
+            newTempList.push(obj.trim());
+          }
+        })
+      }
+      return newTempList;
+  }
+
+  callError(listOfLines: any) {
+    this.matDialog.open( CompierrorComponent, {
+      width: '700px',
+      data: {
+        list: listOfLines,
+        errorList: this.erroList
+      }
+    });
   }
 
   getTotalSpaces(text: any): number {
@@ -153,17 +157,30 @@ export class CompiladorComponent implements OnInit {
     return tempSec;
   }
 
-  checkIfSemiColon( lineTocheck: string, position: number ) {
+  checkIfSemiColon( lineTocheck: string[] ) {
 
-    let receivedString = '';
-    receivedString = lineTocheck.toString().trim();
-    console.log('receivedString ', receivedString);
-    const response = receivedString.charAt( receivedString.length - 1);
+      if ( lineTocheck.length > 0 ) {
 
-    if ( response !== ';' ) {
-      this.erroList.push({ index: position, errorType: 'Semicolon' });
-    }
+            let index = 0;
 
+            lineTocheck.forEach( obj => {
+
+                let receivedString = '';
+                receivedString = obj.toString();
+                console.log("list to check is", receivedString)
+                const response = receivedString.charAt( receivedString.length - 1);
+
+              console.log("Respone", response)
+                if ( response !== ';' ) {
+                  this.erroList.push({ index: index, errorType: 'Semicolon' });
+                }
+
+                index++;
+            });
+
+          }
+
+    return lineTocheck;
   }
 
   showFile(e: any) :any {

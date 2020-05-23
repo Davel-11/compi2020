@@ -29,8 +29,7 @@ export class CompierrorComponent implements OnInit {
             index: obj.index
           });
         });
-
-        console.log(' new list is', this.finalErrorList);
+        console.log('Erro list is', this.finalErrorList);
 
     }
 
