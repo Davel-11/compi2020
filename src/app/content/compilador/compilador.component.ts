@@ -38,6 +38,10 @@ export class CompiladorComponent implements OnInit {
 
   erroList = [];
 
+  binaryTree = [];
+
+  operaciones = [ '+', '-', '/', '*' ];
+
   constructor(
     public matDialog: MatDialog
   ) { }
@@ -73,6 +77,10 @@ export class CompiladorComponent implements OnInit {
 
     // PASO 5. * Validar estructura de operacion
     this.checkFormulaStructure(listOfLines);
+
+
+    // ** CREACION DE ARBOL BINARIO ** //
+    this.generateBinaryTree(listOfLines);
 
     // CONFIRMAR SI HAY ERROR
     if (this.erroList.length > 0) {
@@ -185,23 +193,23 @@ export class CompiladorComponent implements OnInit {
 
         const spitFormula = obj.split('=');
 
-        if ( this.checkIfIsFormula(obj) ) {
+        if (this.checkIfIsFormula(obj)) {
 
-              if ( obj.includes('+') ) {
-                this.splitAndCheck('+', spitFormula[1], index);
-              }
+          if (obj.includes('+')) {
+            this.splitAndCheck('+', spitFormula[1], index);
+          }
 
-              if ( obj.includes('-') ) {
-                this.splitAndCheck('-', spitFormula[1], index);
-              }
+          if (obj.includes('-')) {
+            this.splitAndCheck('-', spitFormula[1], index);
+          }
 
-              if ( obj.includes('/') ) {
-                this.splitAndCheck('/', spitFormula[1], index);
-              }
+          if (obj.includes('/')) {
+            this.splitAndCheck('/', spitFormula[1], index);
+          }
 
-              if ( obj.includes('*') ) {
-                this.splitAndCheck('*', spitFormula[1], index);
-              }
+          if (obj.includes('*')) {
+            this.splitAndCheck('*', spitFormula[1], index);
+          }
 
         }
 
@@ -212,73 +220,71 @@ export class CompiladorComponent implements OnInit {
 
   splitAndCheck(sign: string, textToSplit: string, indexIs: number) {
 
-    console.log('split by', sign);
     // quitar espacions en blanco
     const textToWork = textToSplit.replace(/\s/g, '');
     // split by simbolo
     const tempArray = textToWork.split(sign);
     // arreglo
-    console.log('tempArray is', tempArray);
 
     tempArray.forEach(obj => {
 
       if (obj.length > 1) {
 
-              // caracter inicial
-              if (
-                obj[0] === '+' ||
-                obj[0] === '-' ||
-                obj[0] === '/' ||
-                obj[0] === '*' ||
-                obj[0] === '' ||
-                obj[0] === ')'
-                 ) {
+        // caracter inicial
+        if (
+          obj[0] === '+' ||
+          obj[0] === '-' ||
+          obj[0] === '/' ||
+          obj[0] === '*' ||
+          obj[0] === '' ||
+          obj[0] === ')'
+        ) {
 
-                this.erroList.push({
-                  index: indexIs,
-                  errorType: 'structure',
-                  message: 'Error de estructura - cerca de simbolo >> ' + sign,
-                });
+          this.erroList.push({
+            index: indexIs,
+            errorType: 'structure',
+            message: 'Error de estructura - cerca de simbolo >> ' + sign,
+          });
 
-              }
+        }
 
-              // carater final
-              if (
-                obj[obj.length - 1] === '+' ||
-                obj[obj.length - 1] === '-' ||
-                obj[obj.length - 1] === '/' ||
-                obj[obj.length - 1] === '*' ||
-                obj[obj.length - 1] === ''  ||
-                obj[obj.length - 1] === '('
-                ) {
-                this.erroList.push({
-                  index: indexIs,
-                  errorType: 'structure',
-                  message: '*Error de estructura - cerca de simbolo >>> ' + sign,
-                });
-              }
+        // carater final
+        if (
+          obj[obj.length - 1] === '+' ||
+          obj[obj.length - 1] === '-' ||
+          obj[obj.length - 1] === '/' ||
+          obj[obj.length - 1] === '*' ||
+          obj[obj.length - 1] === '' ||
+          obj[obj.length - 1] === '('
+        ) {
+          this.erroList.push({
+            index: indexIs,
+            errorType: 'structure',
+            message: '*Error de estructura - cerca de simbolo >>> ' + sign,
+          });
+        }
 
-      } else  if (obj.length === 1 ) {
-              // solo es un caracter
-              if (obj === '+' || obj === '-' || obj === '/' || obj === '*' || obj === '' || obj === ';' ) {
-                this.erroList.push({
-                  index: indexIs,
-                  errorType: 'structure',
-                  message: 'Error de Estructura cerca de simbolo > ' + sign,
-                });
-              }
-      } else  if (obj.length === 0 ) {
-
-        this.erroList.push({
+      } else if (obj.length === 1) {
+        // solo es un caracter
+        if (obj === '+' || obj === '-' || obj === '/' || obj === '*' || obj === '' || obj === ';') {
+          this.erroList.push({
             index: indexIs,
             errorType: 'structure',
             message: 'Error de Estructura cerca de simbolo > ' + sign,
           });
-}
+        }
+      } else if (obj.length === 0) {
+
+        this.erroList.push({
+          index: indexIs,
+          errorType: 'structure',
+          message: 'Error de Estructura cerca de simbolo > ' + sign,
+        });
+      }
 
     });
 
-    if ( textToWork.length <= 3 ) {
+    if (textToWork.length <= 3) {
 
       this.erroList.push({
         index: indexIs,
@@ -315,6 +321,80 @@ export class CompiladorComponent implements OnInit {
     };
 
     reader.readAsText(e.target.files[0]);
+
+  }
+
+  generateBinaryTree(formulas: string[]) {
+
+    this.binaryTree = [];
+
+
+    formulas.forEach(obj => {
+
+        if (this.checkIfIsFormula(obj)) {
+
+          if ( true )  {
+              // remove punto y coma
+          }
+
+          if (obj.includes('=')) {
+
+            const miniTree = obj.split('=');
+            this.binaryTree.push({ fatherNode: '=', nodeLeft: null, nodeRight: miniTree[1] });
+
+            if ( obj.includes('+') ) {
+
+              this.createMiniTree('+', miniTree[1] );
+
+            }
+          }
+        }
+    });
+
+    console.log('finaly binary tree is ', this.binaryTree);
+
+  }
+
+  createMiniTree(splitType: string, stringToSplite: string, position?: string) {
+
+      const miniTree = stringToSplite.split(splitType);
+
+      if ( miniTree.length === 2 ) {
+
+        this.binaryTree.push({ fatherNode: splitType, nodeLeft: miniTree[0], nodeRight: miniTree[1] });
+
+      } else if ( miniTree.length > 2 ) {
+
+        let nodeInfo = '';
+
+        miniTree.forEach((obj2: string, index: number) => {
+
+          if (index !== 0) {
+
+            if (index === 1) {
+              nodeInfo += obj2;
+
+            } else {
+              nodeInfo += splitType + obj2;
+            }
+
+          }
+
+        });
+
+        this.binaryTree.push({ fatherNode: splitType, nodeLeft: miniTree[0], nodeRight: nodeInfo });
+
+        this.operaciones.forEach( op => {
+
+            if ( nodeInfo.includes(op) ) {
+
+              this.createMiniTree( op, nodeInfo );
+
+            }
+
+        });
+
+      }
 
   }
 
