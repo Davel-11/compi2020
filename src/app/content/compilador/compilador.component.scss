@@ -4,7 +4,7 @@ table {
     width: 100%;
 
   }
-  
+
   td, th {
     color: slategray;
     width: 16.66%;
@@ -14,4 +14,17 @@ table {
     color: #bf3a19;
     font-size: 1.3rem;
   }
-  
+
+.custom-file-upload {
+  // border: 1px solid #ccc;
+  display: inline-block;
+  padding: 6px 12px;
+  cursor: pointer;
+  background: #28a745;
+  color: white;
+  border-radius: 5px;
+}
+
+input[type="file"] {
+  display: none;
+}

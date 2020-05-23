@@ -13,7 +13,6 @@ import {MatInputModule} from '@angular/material/input';
 import {MatButtonModule} from '@angular/material/button';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CompiladorComponent } from './content/compilador/compilador.component';
-import { TestRockaComponent } from './content/test-rocka/test-rocka.component';
 import { TestOrellanaComponent } from './content/test-orellana/test-orellana.component';
 import {MatTableModule} from '@angular/material/table';
 import {MatDialogModule} from '@angular/material/dialog';
@@ -26,7 +25,6 @@ import { CompierrorComponent } from './content/compilador/compierror/compierror.
     IntegrantesComponent,
     HomeComponent,
     CompiladorComponent,
-    TestRockaComponent,
     TestOrellanaComponent,
     CompierrorComponent
   ],

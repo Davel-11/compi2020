@@ -33,18 +33,7 @@ export class CompiladorComponent implements OnInit {
   totalWords = 0;
   totalRepeated;
 
-  dataValue =
-  ' variable1 As Integer = 1.0; ' +
-  '\n variable2 As Integer = 1.0 ' +
-  '\n variable3 As Real 1.2; ' +
-  '\n variable4 As Real = 2.0; ' +
-  '\n variable5 As Real = 3.0;  ' +
-  '\n variable7 As char = "a"  ' +
-  '\n  ' +
-  '\n Formula1 = Valor1 + 16 * (24 / 1) + x; '  +
-  '\n Formula1 = Valor1 + 16 * (24 / 1) + x; '  +
-  '\n Formula1 = Valor1 + 16 * (24 / 1 + x;  '
-  ;
+  dataValue = '';
 
   erroList = [];
 
@@ -62,70 +51,65 @@ export class CompiladorComponent implements OnInit {
 
   onSubmit() {
 
-    this.erroList = [];
-    
-    const textToProcess = this.form.get('input').value;
+  }
 
-    this.totalSpaces = this.getTotalSpaces(textToProcess);
-    this.totalLines = this.getTotalLines(textToProcess);
-    this.totalWords = this.getTotalWords(textToProcess);
-    this.totalRepeated = this.getTotalRepeatedWords(textToProcess);
+  processData() {
 
-    const listOfLines = this.getLinesInArray(textToProcess);
+        this.erroList = [];
+        const textToProcess = this.form.get('input').value;
 
-    if ( listOfLines.length > 0 ) {
+        this.totalSpaces = this.getTotalSpaces(textToProcess);
+        this.totalLines = this.getTotalLines(textToProcess);
+        this.totalWords = this.getTotalWords(textToProcess);
+        this.totalRepeated = this.getTotalRepeatedWords(textToProcess);
 
-      let index = 0;
-      listOfLines.forEach( obj => {
+        const listOfLines = this.getLinesInArray(textToProcess);
 
-        if ( obj.toString().trim() !== '' ) {
-          this.checkIfSemiColon(obj, index);
+        if ( listOfLines.length > 0 ) {
+
+          let index = 0;
+          listOfLines.forEach( obj => {
+
+            if ( obj.toString().trim() !== '' ) {
+              this.checkIfSemiColon(obj, index);
+            }
+
+            index++;
+          });
+
         }
 
-        index++;
-      });
+        if ( this.erroList.length > 0 ) {
 
-    }
+          this.matDialog.open( CompierrorComponent, {
+            width: '700px',
+            data: {
+              list: listOfLines,
+              errorList: this.erroList
+            }
+          });
 
-    console.log('Error list is', this.erroList);
+        }
 
-    if ( this.erroList.length > 0 ) {
-
-        this.matDialog.open( CompierrorComponent, {
-          width: '700px',
-          data: {
-            list: listOfLines,
-            errorList: this.erroList
-          }
-        });
-
-    }
 
   }
 
-
   getTotalSpaces(text: any): number {
-
     const tempOne = text;
     const tempSec = tempOne.split(' ');
     return tempSec.length - 1;
   }
 
   getTotalLines(text: any ) {
-
     const tempOne = text;
     const tempSec = tempOne.split('\n');
     return tempSec.length;
-
   }
 
-
   getTotalWords(text: any) {
-
     const tempOne = text;
     const tempSec = tempOne.split(' ');
     return tempSec.length + 1;
-
   }
 
   getTotalRepeatedWords(text: any) {
@@ -163,10 +147,6 @@ export class CompiladorComponent implements OnInit {
 
   }
 
-  readTXTFile() {
-
-  }
-
   getLinesInArray(text: any ) {
     const tempOne = text;
     const tempSec = tempOne.split('\n');
@@ -185,5 +165,18 @@ export class CompiladorComponent implements OnInit {
     }
 
   }
+
+  showFile(e: any) :any {
+
+    e.preventDefault();
+    const reader = new FileReader();
+
+    reader.onload = async (e:any) => {
+      this.form.get('input').setValue(e.target.result);
+    };
+
+    reader.readAsText(e.target.files[0]);
+
+  };
 
 }
