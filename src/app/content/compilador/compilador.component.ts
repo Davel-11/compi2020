@@ -129,10 +129,22 @@ export class CompiladorComponent implements OnInit {
   dataGeneralTable(arrayLineSpaces){
     for (const item of arrayLineSpaces) {
       if (item.includes("As")){
-        console.log('decalración: ', item);
+        if(item.length==3){
+          console.log('decalración: ', item);
+          this.declarationTokens.push({token: item[0], category: undefined,  type: item[2], valToken: undefined, priority: undefined});
+        }
+        if(item.length==5){
+          console.log('asignación: ', item);
+          this.declarationTokens.push({token: item[0], category: undefined,  type: item[2], valToken: item[4], priority: undefined});
+
+
+        }
       }
       
     }
+    console.log('======TABLITA==============================');
+    console.log(this.declarationTokens);
+    console.log('====================================');
   }
 
   processData() {
