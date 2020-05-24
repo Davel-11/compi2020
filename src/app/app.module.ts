@@ -17,6 +17,8 @@ import { TestOrellanaComponent } from './content/test-orellana/test-orellana.com
 import {MatTableModule} from '@angular/material/table';
 import {MatDialogModule} from '@angular/material/dialog';
 import { CompierrorComponent } from './content/compilador/compierror/compierror.component';
+import {MatToolbarModule} from '@angular/material/toolbar'; 
+import {MatTabsModule} from '@angular/material/tabs';
 
 @NgModule({
   declarations: [
@@ -38,7 +40,9 @@ import { CompierrorComponent } from './content/compilador/compierror/compierror.
     MatButtonModule,
     ReactiveFormsModule,
     MatTableModule,
-    MatDialogModule
+    MatDialogModule,
+    MatToolbarModule,
+    MatTabsModule
   ],
   providers: [],
   bootstrap: [AppComponent]

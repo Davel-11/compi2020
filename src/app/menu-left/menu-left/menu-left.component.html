@@ -1,43 +1,40 @@
-<div class="menu-left">
-
-    <div class="row mx-0 imagen">
-        <img src="../../../assets/mariano.png" alt="Girl in a jacket" style="max-height: 230px">
-    </div>
-
-    <div class="row mx-0 menu-sec" (click)="navigate('home')" [ngClass]="{ 'is-on' : home }" >
-        <div class="col-2">
-            <mat-icon>home</mat-icon>
-        </div>
-        <div class="col-10" >
-            Inicio
-        </div>
-    </div>
-
-    <div class="row mx-0 menu-sec" (click)="navigate('integrantes')" [ngClass]="{ 'is-on' : integrantes }">
-        <div class="col-2">
-            <mat-icon>accessibility</mat-icon>
-        </div>
-        <div class="col-10" >
-            Integrantes
-        </div>
-    </div>
-
-    <div class="row mx-0 menu-sec" (click)="navigate('compilador')" [ngClass]="{ 'is-on' : compilador }">
-        <div class="col-2" >
-            <mat-icon>chrome_reader_mode</mat-icon>
-        </div>
-        <div class="col-10">
-            Proyecto Compiladores
-        </div>
-    </div>
-
-    <div class="row mx-0 menu-sec" (click)="navigate('orellana')" [ngClass]="{ 'is-on' : orellana }">
-        <div class="col-2">
-            <mat-icon>dashboard</mat-icon>
-        </div>
-        <div class="col-10">
-            Componente Test Orellana
-        </div>
-    </div>
-
-</div>
+<mat-toolbar color="primary" class="app-toolbar">
+  <mat-toolbar-row>
+    <mat-icon
+    (click)="navigate('home')" [ngClass]="{ 'is-on' : home }"
+    class="example-icon"
+    aria-hidden="false"
+    aria-label="Example heart icon"
+    >home</mat-icon
+  >
+    <mat-icon
+      (click)="navigate('compilador')"
+      [ngClass]="{ 'is-on' : compilador }"
+      class="example-icon"
+      aria-hidden="false"
+      aria-label="Example heart icon"
+      >code</mat-icon
+    >
+    <span class="example-spacer"></span>
+    <mat-icon
+      (click)="navigate('integrantes')"
+      [ngClass]="{ 'is-on' : integrantes }"
+      class="example-icon"
+      aria-hidden="false"
+      aria-label="Example heart icon"
+      >group</mat-icon
+    >
+    <mat-icon
+      class="example-icon"
+      aria-hidden="false"
+      aria-label="Example delete icon"
+      >table_chart</mat-icon
+    >
+    <mat-icon
+      class="example-icon"
+      aria-hidden="false"
+      aria-label="Example delete icon"
+      >bug_report</mat-icon
+    >
+  </mat-toolbar-row>
+</mat-toolbar>
