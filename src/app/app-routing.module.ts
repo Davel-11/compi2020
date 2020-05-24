@@ -8,9 +8,9 @@ import { CompierrorComponent } from './content/compilador/compierror/compierror.
 
 
 const routes: Routes = [
-  {path: '', component: HomeComponent},
+  {path: '', component: CompiladorComponent },
   {path: 'integrantes', component: IntegrantesComponent},
-  {path: 'compilador', component: CompiladorComponent },
+  {path: 'info', component: HomeComponent },
   {path: 'testsec', component: TestOrellanaComponent },
   {path: 'modal', component: CompierrorComponent }
 ];

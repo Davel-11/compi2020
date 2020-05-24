@@ -1,20 +1,25 @@
 <mat-toolbar color="primary" class="app-toolbar">
   <mat-toolbar-row>
-    <mat-icon
-    (click)="navigate('home')" [ngClass]="{ 'is-on' : home }"
-    class="example-icon"
-    aria-hidden="false"
-    aria-label="Example heart icon"
-    >home</mat-icon
-  >
+    <span class="example-spacer"></span>
     <mat-icon
       (click)="navigate('compilador')"
       [ngClass]="{ 'is-on' : compilador }"
       class="example-icon"
       aria-hidden="false"
       aria-label="Example heart icon"
-      >code</mat-icon
+      >home</mat-icon
     >
+    <span class="example-spacer"></span>
+
+    <mat-icon
+      (click)="navigate('home')"
+      [ngClass]="{ 'is-on' : home }"
+      class="example-icon"
+      aria-hidden="false"
+      aria-label="Example heart icon"
+      >info</mat-icon
+    >
+    
     <span class="example-spacer"></span>
     <mat-icon
       (click)="navigate('integrantes')"
@@ -24,17 +29,5 @@
       aria-label="Example heart icon"
       >group</mat-icon
     >
-    <mat-icon
-      class="example-icon"
-      aria-hidden="false"
-      aria-label="Example delete icon"
-      >table_chart</mat-icon
-    >
-    <mat-icon
-      class="example-icon"
-      aria-hidden="false"
-      aria-label="Example delete icon"
-      >bug_report</mat-icon
-    >
-  </mat-toolbar-row>
-</mat-toolbar>
+    <span class="example-spacer"></span>
+

@@ -19,6 +19,8 @@ import {MatDialogModule} from '@angular/material/dialog';
 import { CompierrorComponent } from './content/compilador/compierror/compierror.component';
 import {MatToolbarModule} from '@angular/material/toolbar'; 
 import {MatTabsModule} from '@angular/material/tabs';
+import {MatMenuModule} from '@angular/material/menu';
+import {MatGridListModule} from '@angular/material/grid-list'; 
 
 @NgModule({
   declarations: [
@@ -32,6 +34,8 @@ import {MatTabsModule} from '@angular/material/tabs';
   ],
   imports: [
     BrowserModule,
+    MatGridListModule,
+    MatMenuModule,
     AppRoutingModule,
     BrowserAnimationsModule,
     MatIconModule,

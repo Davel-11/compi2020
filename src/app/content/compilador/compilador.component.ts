@@ -86,13 +86,7 @@ export class CompiladorComponent implements OnInit {
   totalWords = 0;
   totalRepeated;
   textArraySpacesGroupLines = [];
-  declarationTokens = [{
-    token: undefined,
-    category: undefined,
-    type: undefined,
-    valToken: undefined,
-    priority: undefined
-  }];
+  declarationTokens = [];
 
   dataValue = '';
 
@@ -138,11 +132,11 @@ export class CompiladorComponent implements OnInit {
       if (item.includes('As')) {
         if (item.length == 3) {
           //console.log('decalración: ', item);
-          this.declarationTokens.push({ token: item[0], category: undefined, type: item[2], valToken: undefined, priority: undefined });
+          this.declarationTokens.push({ token: item[0], category: 'Var', type: item[2], valToken: undefined, priority: undefined });
         }
         if (item.length == 5) {
           // console.log('asignación: ', item);
-          this.declarationTokens.push({ token: item[0], category: undefined, type: item[2], valToken: item[4], priority: undefined });
+          this.declarationTokens.push({ token: item[0], category: 'Var', type: item[2], valToken: item[4], priority: undefined });
 
 
         }

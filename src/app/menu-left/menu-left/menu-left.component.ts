@@ -42,14 +42,14 @@ export class MenuLeftComponent implements OnInit {
 
     if ( navigateTo === 'home') {
       this.home = true;
-      this.router.navigate([''], {
+      this.router.navigate(['info'], {
         queryParams: { }
       });
     }
 
     if ( navigateTo === 'compilador') {
       this.compilador = true;
-      this.router.navigate(['compilador'], {
+      this.router.navigate([''], {
         queryParams: { }
       });
     }

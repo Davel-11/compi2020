@@ -1,40 +1,7 @@
-
-.menu-left {
-    background: whitesmoke;
-    height: calc( 100vh - 15px );
-    color: slategray;
-
-    .imagen {
-        
-        height: 225px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 7px;
-        padding-top: 25px;
-        background: whitesmoke;
-        // border-bottom-style: solid;
-        // border-bottom-color: white;
-        // border-bottom-width: thin;
-        margin-bottom: 60px;
-    }
-
-    .menu-sec {
-        margin-top: 15px;
-        cursor: pointer;
-        padding-left: 15px;
-        height: 45px;
-        padding-top: 12px;
-        font-size: 1.2rem;
-    }
-
-    .menu-sec:hover {
-        background: #bf3a19;
-        color: whitesmoke;
-    }
-
-    .is-on {
-        background: #bf3a19;
-        color: whitesmoke;
-    }
-}
+.example-icon {
+    padding: 0 14px;
+  }
+  
+  .example-spacer {
+    flex: 1 1 auto;
+  }
