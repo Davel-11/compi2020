@@ -131,8 +131,9 @@ export class CompiladorComponent implements OnInit {
        this.callError(listOfLines);
     } else {
         // ** CREACION DE ARBOL BINARIO ** //
-        this.generateBinaryTree(listOfLines);
         this.tabIndex = 1;
+        this.totales = [];
+        this.generateBinaryTree(listOfLines);
     }
 
     //
