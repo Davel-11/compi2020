@@ -47,7 +47,13 @@ export class CompiladorComponent implements OnInit {
   ];
 
 
-  totalOperacion = 0;
+  totalOperacion1 = 0;
+  totalOperacion2 = 0;
+  totalOperacion3 = 0;
+  totalOperacion4 = 0;
+  totalOperacion5 = 0;
+
+  counter = 0;
 
   constructor(
     public matDialog: MatDialog
@@ -122,15 +128,15 @@ export class CompiladorComponent implements OnInit {
     this.checkFormulaStructure(listOfLines);
 
 
-    // ** CREACION DE ARBOL BINARIO ** //
-    this.generateBinaryTree(listOfLines);
-
     // CONFIRMAR SI HAY ERROR
     if (this.erroList.length > 0) {
-      // this.callError(listOfLines);
+       this.callError(listOfLines);
+    } else {
+        // ** CREACION DE ARBOL BINARIO ** //
+        this.generateBinaryTree(listOfLines);
     }
 
-    // 
+    //
     this.textToarrayTable(textToProcess);
     this.dataGeneralTable(this.textArraySpacesGroupLines);
   }
@@ -391,7 +397,6 @@ export class CompiladorComponent implements OnInit {
 
     this.binaryTree = [];
 
-
     formulas.forEach(obj => {
 
       if (this.checkIfIsFormula(obj)) {
@@ -399,63 +404,70 @@ export class CompiladorComponent implements OnInit {
         if (obj.includes('=')) {
 
           const miniTree = obj.split('=');
-
           let primaryNodeInfo: NodeObject;
           let nodeInfo: NodeObject;
+          this.binaryTree = [];
+
+          // PASO 0 -- QUITAR PUNTO Y COMA AL FINAL
+          let minTree = miniTree[1];
+          minTree = minTree.replace(';', '');
+          this.startPriority = 0;
+
+          console.log('Operation to process', minTree);
 
           // PASO 1 -- CHECK FOR PARENTESIS
-          const checking = miniTree[1].includes('(');
+          const checking = minTree.includes('(');
 
           if (checking) {
 
-            nodeInfo = this.checkForParentesis(miniTree[1]);
+                nodeInfo = this.checkForParentesis(minTree);
 
-            nodeInfo = {
-              priority: nodeInfo.priority,
-              initialOperation: nodeInfo.initialOperation,
-              nodeLeft: nodeInfo.nodeLeft,
-              nodeRight: nodeInfo.nodeRight,
-              operation: nodeInfo.operation,
-              operationResult: nodeInfo.operationResult,
-              pendingToProcess: nodeInfo.pendingToProcess,
-              nextTree: nodeInfo.nextTree ? (
-                (nodeInfo.pendingToProcess.includes('/') || nodeInfo.pendingToProcess.includes('*')) ? this.checkForMulAndDiv('/', '*', nodeInfo.pendingToProcess) :
-                  (nodeInfo.pendingToProcess.includes('+') || nodeInfo.pendingToProcess.includes('-')) ? this.checkForMulAndDiv('+', '-', nodeInfo.pendingToProcess) :
-                    []
-              ) : []
-            };
+                nodeInfo = {
+                  priority: nodeInfo.priority,
+                  initialOperation: nodeInfo.initialOperation,
+                  nodeLeft: nodeInfo.nodeLeft,
+                  nodeRight: nodeInfo.nodeRight,
+                  operation: nodeInfo.operation,
+                  operationResult: nodeInfo.operationResult,
+                  pendingToProcess: nodeInfo.pendingToProcess,
+                  nextTree: nodeInfo.nextTree ? (
+                    (nodeInfo.pendingToProcess.includes('/') || nodeInfo.pendingToProcess.includes('*')) ? this.checkForMulAndDiv('/', '*', nodeInfo.pendingToProcess) :
+                      (nodeInfo.pendingToProcess.includes('+') || nodeInfo.pendingToProcess.includes('-')) ? this.checkForMulAndDiv('+', '-', nodeInfo.pendingToProcess) :
+                        []
+                  ) : []
+                };
 
           } else {
 
             // PASO 2 --- CHECK FOR   MULTIPLICACON    OR   DIVICION /
-            const checking = miniTree[1].includes('*');
-            const checkingSec = miniTree[1].includes('/');
+            const checking = minTree.includes('*');
+            const checkingSec = minTree.includes('/');
 
             if (checking || checkingSec) {
 
               // TIENE MULTIPLICACION O DIVICION
-              nodeInfo = this.checkForMulAndDiv('*', '/', miniTree[1]);
+              nodeInfo = this.checkForMulAndDiv('*', '/', minTree);
 
             } else {
 
-              const checking = miniTree[1].includes('+');
-              const checkingSec = miniTree[1].includes('-');
+              const checking = minTree.includes('+');
+              const checkingSec = minTree.includes('-');
 
               // TIENE suma O RESTA
-              nodeInfo = this.checkForMulAndDiv('+', '-', miniTree[1]);
+              nodeInfo = this.checkForMulAndDiv('+', '-', minTree);
 
             }
 
           }
 
           primaryNodeInfo = {
-            priority: this.startPriority,
+            priority: this.startPriority + 1,
             initialOperation: obj,
             nodeLeft: miniTree[0],
-            nodeRight: miniTree[1],
+            nodeRight: minTree,
             operation: '=',
             operationResult: null,
-            pendingToProcess: miniTree[1],
+            pendingToProcess: minTree,
             nextTree: nodeInfo ? nodeInfo : null
           }
 
@@ -463,10 +475,9 @@ export class CompiladorComponent implements OnInit {
 
         }
 
+
       }
     });
-
-    console.log('finaly binary tree is ', this.binaryTree);
 
   }
 
@@ -555,7 +566,32 @@ export class CompiladorComponent implements OnInit {
     }
 
     if (!(check.length >= 3)) {
-      this.totalOperacion = operationResult;
+
+      console.log('counter is', this.counter);
+
+      if ( this.counter === 0 ) {
+
+        this.totalOperacion1 = operationResult;
+
+      } else if ( this.counter === 1 ) {
+
+        this.totalOperacion2 = operationResult;
+
+      } else if ( this.counter === 2 ) {
+
+        this.totalOperacion3 = operationResult;
+
+      } else if ( this.counter === 3 ) {
+
+        this.totalOperacion4 = operationResult;
+
+      } else if ( this.counter === 4 ) {
+
+        this.totalOperacion5 = operationResult;
+
+      }
+
+      this.counter++;
     }
 
     return newNode;
@@ -608,14 +644,18 @@ export class CompiladorComponent implements OnInit {
   checkForParentesis(equation: string) {
 
     const initialSplit = equation.split(' ');
+
     let tempClean = this.clearWhiteSpacesString(initialSplit);
     tempClean = this.setSplitSpace(tempClean);
-    const eqArray = tempClean.split(' ');
+
+    let eqArray = tempClean.split(' ');
+    eqArray = this.clearWhiteSpaces(eqArray);
 
     let leftData = '';
     let insideParentesis = '';
     let rightData = '';
     this.startPriority++;
+
 
     // GET DATA INSIDE PARENTESIS
     for (let i = 0; i < eqArray.length; i++) {
@@ -787,32 +827,36 @@ export class CompiladorComponent implements OnInit {
   setSplitSpace(receivedSTring: string) {
 
     if (receivedSTring.includes('+')) {
-      receivedSTring = receivedSTring.replace('+', ' + ');
+      receivedSTring = this.replaceAll(receivedSTring, '\\+', ' + ');
     }
 
     if (receivedSTring.includes('-')) {
-      receivedSTring = receivedSTring.replace('-', ' - ');
+      receivedSTring = this.replaceAll(receivedSTring, '-', ' - ');
     }
 
     if (receivedSTring.includes('/')) {
-      receivedSTring = receivedSTring.replace('/', ' / ');
+      receivedSTring = this.replaceAll(receivedSTring, '\\/', ' / ');
     }
 
     if (receivedSTring.includes('*')) {
-      receivedSTring = receivedSTring.replace('*', ' * ');
+      receivedSTring = this.replaceAll(receivedSTring, '\\*', ' * ');
     }
 
     if (receivedSTring.includes('(')) {
-      receivedSTring = receivedSTring.replace('(', ' ( ');
+      receivedSTring = this.replaceAll(receivedSTring, '\\(', ' ( ');
     }
 
     if (receivedSTring.includes(')')) {
-      receivedSTring = receivedSTring.replace(')', ' ) ');
+      receivedSTring = this.replaceAll(receivedSTring, '\\)', ' ) ');
     }
 
 
     return receivedSTring;
 
+  }
+
+  replaceAll(str, find, replace) {
+    return str.replace(new RegExp(find, 'g'), replace);
   }
 
 
