@@ -2,7 +2,6 @@
 
 table {
     width: 100%;
-
   }
 
   td, th {
@@ -15,16 +14,88 @@ table {
     font-size: 1.3rem;
   }
 
-.custom-file-upload {
-  // border: 1px solid #ccc;
-  display: inline-block;
-  padding: 6px 12px;
-  cursor: pointer;
-  background: #28a745;
-  color: white;
-  border-radius: 5px;
-}
 
 input[type="file"] {
   display: none;
+}
+
+.card-content {
+
+  overflow-x: auto; 
+  height: calc(100vh - 345px );
+
+}
+
+.card-actions {
+  height: 150px!important;
+}
+
+.upload-file {
+  width: 225px;
+  height: 125px;  
+  margin: 5px;
+  border-radius: 15px;
+  margin-right: 50px;
+  margin-left: 50px;
+  cursor: pointer;
+    .inside-icon {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 5rem;
+      height: 100%;
+      width: 100%;
+    }
+}
+
+.color-one {
+  background-color: slategray ;
+  color: white;
+}
+
+.color-one:hover {
+  background-color: steelblue ;
+}
+
+.color-sec {
+  background-color: slategray ;
+  color: white;
+}
+
+.color-sec:hover {
+  background-color: indianred ;
+  color: white;
+}
+
+.resultados {
+
+      font-size: 2rem;
+      color: rgb(67, 119, 161);
+      margin-top: 15px;
+
+      .res-icon {
+        color: chartreuse;
+        font-size: 4rem;
+        margin-right: 50px;
+        display: fe;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-weight: bolder;
+      }
+      
+
+      .resp {
+          text-align: center;
+          border-style: solid;
+          border-radius: 15px;
+          padding: 15px;
+          border-color:  rgb(210, 221, 230);
+          height: 175px;
+          width: 100%;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+      }
+
 }

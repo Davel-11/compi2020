@@ -51,6 +51,8 @@ export class CompiladorComponent implements OnInit {
 
   counter = 0;
 
+  tabIndex = 0;
+
   constructor(
     public matDialog: MatDialog
   ) { }
@@ -130,6 +132,7 @@ export class CompiladorComponent implements OnInit {
     } else {
         // ** CREACION DE ARBOL BINARIO ** //
         this.generateBinaryTree(listOfLines);
+        this.tabIndex = 1;
     }
 
     //
