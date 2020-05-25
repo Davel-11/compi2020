@@ -4,65 +4,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { ThrowStmt } from '@angular/compiler';
 import { CompierrorComponent } from './compierror/compierror.component';
 import { ObjectUnsubscribedError } from 'rxjs';
+import { NodeObject } from './compilador.model';
 
-const ELEMENT_DATA: any[] = [
-  {
-    id: 1,
-    Token: ' = ',
-    Categoria: 'Igualdador',
-    Tipo: 'Igualador',
-    Valor: '-',
-    Prioridad: '1',
-  },
-  {
-    id: 1,
-    Token: ' Temp1 ',
-    Categoria: 'Variable',
-    Tipo: 'Variable',
-    Valor: '-',
-    Prioridad: '-',
-  },
-  {
-    id: 1,
-    Token: ' Temp1 ',
-    Categoria: 'Variable',
-    Tipo: 'Variable',
-    Valor: '-',
-    Prioridad: '-',
-  },
-  {
-    id: 1,
-    Token: ' Temp1 ',
-    Categoria: 'Variable',
-    Tipo: 'Variable',
-    Valor: '-',
-    Prioridad: '-',
-  },
-  {
-    id: 1,
-    Token: ' Temp1 ',
-    Categoria: 'Variable',
-    Tipo: 'Variable',
-    Valor: '-',
-    Prioridad: '-',
-  },
-  {
-    id: 1,
-    Token: ' Temp1 ',
-    Categoria: 'Variable',
-    Tipo: 'Variable',
-    Valor: '-',
-    Prioridad: '-',
-  },
-  {
-    id: 1,
-    Token: ' Temp1 ',
-    Categoria: 'Variable',
-    Tipo: 'Variable',
-    Valor: '-',
-    Prioridad: '-',
-  },
-];
 
 @Component({
   selector: 'app-compilador',
@@ -70,6 +13,7 @@ const ELEMENT_DATA: any[] = [
   styleUrls: ['./compilador.component.scss'],
 })
 export class CompiladorComponent implements OnInit {
+
   displayedColumns: string[] = [
     'id',
     'token',
@@ -93,8 +37,17 @@ export class CompiladorComponent implements OnInit {
   erroList = [];
 
   binaryTree = [];
-
   operaciones = ['+', '-', '/', '*'];
+  startPriority = 0;
+
+  variables = [
+    { name: 'var1', value: 2, tipo: 'Integer' },
+    { name: 'var2', value: 2, tipo: 'Integer' },
+    { name: 'var3', value: 2, tipo: 'Real' }
+  ];
+
+
+  totalOperacion = 0;
 
   constructor(
     public matDialog: MatDialog
@@ -102,7 +55,7 @@ export class CompiladorComponent implements OnInit {
 
   ngOnInit() {
     this.form = new FormGroup({
-      input: new FormControl(this.dataValue),
+      input: new FormControl(''),
     });
   }
 
@@ -174,7 +127,7 @@ export class CompiladorComponent implements OnInit {
 
     // CONFIRMAR SI HAY ERROR
     if (this.erroList.length > 0) {
-      this.callError(listOfLines);
+      // this.callError(listOfLines);
     }
 
     // 
@@ -443,21 +396,73 @@ export class CompiladorComponent implements OnInit {
 
       if (this.checkIfIsFormula(obj)) {
 
-        if (true) {
-          // remove punto y coma
-        }
-
         if (obj.includes('=')) {
 
           const miniTree = obj.split('=');
-          this.binaryTree.push({ fatherNode: '=', nodeLeft: null, nodeRight: miniTree[1] });
 
-          if (obj.includes('+')) {
+          let primaryNodeInfo: NodeObject;
+          let nodeInfo: NodeObject;
 
-            this.createMiniTree('+', miniTree[1]);
+          // PASO 1 -- CHECK FOR PARENTESIS
+          const checking = miniTree[1].includes('(');
+
+          if (checking) {
+
+            nodeInfo = this.checkForParentesis(miniTree[1]);
+
+            nodeInfo = {
+              priority: nodeInfo.priority,
+              initialOperation: nodeInfo.initialOperation,
+              nodeLeft: nodeInfo.nodeLeft,
+              nodeRight: nodeInfo.nodeRight,
+              operation: nodeInfo.operation,
+              operationResult: nodeInfo.operationResult,
+              pendingToProcess: nodeInfo.pendingToProcess,
+              nextTree: nodeInfo.nextTree ? (
+                (nodeInfo.pendingToProcess.includes('/') || nodeInfo.pendingToProcess.includes('*')) ? this.checkForMulAndDiv('/', '*', nodeInfo.pendingToProcess) :
+                  (nodeInfo.pendingToProcess.includes('+') || nodeInfo.pendingToProcess.includes('-')) ? this.checkForMulAndDiv('+', '-', nodeInfo.pendingToProcess) :
+                    []
+              ) : []
+            };
+
+          } else {
+
+            // PASO 2 --- CHECK FOR   MULTIPLICACON    OR   DIVICION /
+            const checking = miniTree[1].includes('*');
+            const checkingSec = miniTree[1].includes('/');
+
+            if (checking || checkingSec) {
+
+              // TIENE MULTIPLICACION O DIVICION
+              nodeInfo = this.checkForMulAndDiv('*', '/', miniTree[1]);
+
+            } else {
+
+              const checking = miniTree[1].includes('+');
+              const checkingSec = miniTree[1].includes('-');
+
+              // TIENE suma O RESTA
+              nodeInfo = this.checkForMulAndDiv('+', '-', miniTree[1]);
+
+            }
 
           }
+
+          primaryNodeInfo = {
+            priority: this.startPriority,
+            initialOperation: obj,
+            nodeLeft: miniTree[0],
+            nodeRight: miniTree[1],
+            operation: '=',
+            operationResult: null,
+            pendingToProcess: miniTree[1],
+            nextTree: nodeInfo ? nodeInfo : null
+          }
+
+          this.binaryTree.push(primaryNodeInfo);
+
         }
+
       }
     });
 
@@ -465,36 +470,351 @@ export class CompiladorComponent implements OnInit {
 
   }
 
-  createMiniTree(splitType: string, stringToSplite: string, position?: string) {
+  checkForMulAndDiv(procesOne, procesSec, receivedString: string) {
 
-    const miniTree = stringToSplite.split(splitType);
+    this.startPriority++;
 
-    if (miniTree.length === 2) {
+    // recibir string y limpiar extra white spaces
+    let initialSplit = receivedString.split(' ');
+    let tempClean = this.clearWhiteSpacesString(initialSplit);
 
-      this.binaryTree.push({ fatherNode: splitType, nodeLeft: miniTree[0], nodeRight: miniTree[1] });
+    // setiar espacios en blanco controlados
+    tempClean = this.setSplitSpace(tempClean);
 
-    } else if (miniTree.length > 2) {
+    // Separar arreglo por espacios
+    let tempArray = tempClean.split(' ');
 
-      let nodeInfo = '';
+    let leftData = '';
+    let operationData = [];
+    let rightData = '';
 
-      miniTree.forEach((obj2: string, index: number) => {
-
-        if (index !== 0) {
-
-          if (index === 1) {
-            nodeInfo += obj2;
-
-          } else {
-            nodeInfo += splitType + obj2;
-          }
-
-        }
-
-      });
-
-
+    // GET DATA OPERATION
+    for (let i = 0; i < tempArray.length; i++) {
+      if (tempArray[i] === procesOne || tempArray[i] === procesSec) {
+        operationData.push(tempArray[i - 1]);
+        operationData.push(tempArray[i]);
+        operationData.push(tempArray[i + 1]);
+        break;
+      }
     }
 
+    // GET PARENTESIS LEFT DATA
+    for (let i = 0; i < tempArray.length; i++) {
+      leftData += tempArray[i] + ' ';
+      if (tempArray[i] === procesOne || tempArray[i] === procesSec) {
+        break;
+      }
+    }
+
+    // GET PARENTESIS RIGHT DATA
+    let position = 0;
+    for (let i = 0; i < tempArray.length; i++) {
+      if (tempArray[i] === procesOne || tempArray[i] === procesSec) {
+        position = i;
+      }
+      if (position > 0) {
+        rightData += ' ' + tempArray[i];
+      }
+    }
+
+    // PROCESS OPERATION
+    let operationResult = this.processOperation(operationData[0], operationData[2], operationData[1]);
+
+    // SET MISSING TO PROCESS
+    leftData = this.clearMultAndDiv('L', leftData);
+    rightData = this.clearMultAndDiv('R', rightData);
+    let missingToProcess = leftData + operationResult + rightData;
+
+    // SET NODE INFO
+    let newData: any;
+    if (operationData.length === 3) {
+      newData = this.setNodeInfo(this.startPriority, operationData[1], operationData[0], operationData[2]);
+    }
+
+    let newNode: NodeObject;
+
+    missingToProcess = this.setSplitSpace(missingToProcess);
+
+    let check: any[] = missingToProcess.split(' ');
+    check = this.clearWhiteSpaces(check);
+
+    newNode = {
+      priority: this.startPriority,
+      initialOperation: receivedString,
+      nodeLeft: operationData[0],
+      nodeRight: operationData[2],
+      operation: operationData[1],
+      operationResult: operationResult,
+      pendingToProcess: missingToProcess,
+      nextTree: check.length >= 3 ?
+        (
+          (missingToProcess.includes('/') || missingToProcess.includes('*')) ? (this.checkForMulAndDiv('/', '*', missingToProcess)) :
+            (missingToProcess.includes('+') || missingToProcess.includes('-')) ? this.checkForMulAndDiv('+', '-', missingToProcess) :
+              []
+        ) : null
+    }
+
+    if (!(check.length >= 3)) {
+      this.totalOperacion = operationResult;
+    }
+
+    return newNode;
+
   }
+
+  processOperation(variableOne, variableSec, operatioType) {
+    // PROCESS OPERATION
+    const operationToCheck = variableOne;
+    const operationToCheckSec = variableSec;
+
+    let operationResult: number;
+    let processOne = 0;
+    let processSec = 0;
+
+    if (Number(operationToCheck)) {
+      processOne = Number(operationToCheck);
+    } else {
+      this.variables.forEach(obj => {
+        if (obj.name === operationToCheck) {
+          processOne = obj.value;
+        }
+      });
+    }
+
+    if (Number(operationToCheckSec)) {
+      processSec = Number(operationToCheckSec);
+    } else {
+      this.variables.forEach(obj => {
+        if (obj.name === operationToCheckSec) {
+          processSec = obj.value;
+        }
+      });
+    }
+
+    if (operatioType === '/') {
+      operationResult = processOne / processSec;
+    } else if (operatioType === '*') {
+      operationResult = processOne * processSec;
+    } else if (operatioType === '+') {
+      operationResult = processOne + processSec;
+    } else if (operatioType === '-') {
+      operationResult = processOne - processSec;
+    }
+
+    return operationResult;
+
+  }
+
+  checkForParentesis(equation: string) {
+
+    const initialSplit = equation.split(' ');
+    let tempClean = this.clearWhiteSpacesString(initialSplit);
+    tempClean = this.setSplitSpace(tempClean);
+    const eqArray = tempClean.split(' ');
+
+    let leftData = '';
+    let insideParentesis = '';
+    let rightData = '';
+    this.startPriority++;
+
+    // GET DATA INSIDE PARENTESIS
+    for (let i = 0; i < eqArray.length; i++) {
+      if (eqArray[i] === '(') {
+        for (let j = i; j < eqArray.length; j++) {
+          insideParentesis += ' ' + eqArray[j] + ' ';
+          if (eqArray[j] === ')') {
+            break;
+          }
+        }
+      }
+    }
+
+    // GET PARENTESIS LEFT DATA
+    for (let i = 0; i < eqArray.length; i++) {
+      leftData += eqArray[i] + ' ';
+      if (eqArray[i] === '(') {
+        break;
+      }
+    }
+
+    // GET PARENTESIS RIGHT DATA
+    let position = 0;
+    for (let i = 0; i < eqArray.length; i++) {
+      if (eqArray[i] === ')') {
+        position = i;
+      }
+      if (position > 0) {
+        rightData += ' ' + eqArray[i];
+      }
+    }
+
+    // SET NODE INFORMATION
+    let tempMiniTree = insideParentesis.split(' ');
+    tempMiniTree = this.clearTreeAndParentesis(tempMiniTree);
+
+    let newNode: any;
+    if (tempMiniTree.length === 3) {
+      newNode = this.setNodeInfo(this.startPriority, tempMiniTree[1], tempMiniTree[0], tempMiniTree[2]);
+    }
+
+    // PROCESS OPERATION
+    let operationResult = this.processOperation(tempMiniTree[0], tempMiniTree[2], tempMiniTree[1]);
+
+    // SET MISSING TO PROCESS
+    leftData = this.clearParentesis('(', ')', leftData);
+    rightData = this.clearParentesis('(', ')', rightData);
+    const missingToProcess = leftData + operationResult + rightData;
+
+    let check: any[] = missingToProcess.split(' ');
+    check = this.clearWhiteSpaces(check);
+
+    newNode = {
+      priority: this.startPriority,
+      initialOperation: equation,
+      nodeLeft: tempMiniTree[0],
+      nodeRight: tempMiniTree[2],
+      operation: tempMiniTree[1],
+      operationResult: operationResult,
+      pendingToProcess: missingToProcess,
+      nextTree: check.length >= 3 ? true : false
+    }
+
+    return newNode;
+  }
+
+  setNodeInfo(priority: any, opType: any, nodeLeft: any, nodeRight: any) {
+
+    const newNode = {
+      opType: opType,
+      nodeLeft: nodeLeft,
+      nodeRight: nodeRight,
+      priority: priority
+    };
+
+    return newNode;
+  }
+
+  clearTreeAndParentesis(arrayToClean: any[]) {
+
+    let tempArray = [];
+
+    arrayToClean.forEach(obj => {
+
+      if (obj !== '' && obj !== '(' && obj !== ')') {
+        tempArray.push(obj);
+      }
+
+    });
+
+    return tempArray;
+
+  }
+
+  clearParentesis(one, sec, receivedString: string) {
+
+    const tempArray = receivedString.split(' ');
+    const newTempArray = [];
+    let stringToReturn = '';
+
+    tempArray.forEach(obj => {
+      if (obj !== one && obj !== sec && obj !== ' ') {
+        newTempArray.push(obj);
+      }
+    });
+
+    newTempArray.forEach(obj2 => {
+      stringToReturn += ' ' + obj2;
+    })
+
+    return stringToReturn;
+
+  }
+
+  clearMultAndDiv(side: any, receivedString: string) {
+
+    const tempArray = receivedString.split(' ');
+    const newTempArray = [];
+    let stringToReturn = '';
+
+    tempArray.forEach(obj => {
+      if (obj !== '') {
+        newTempArray.push(obj);
+      }
+    });
+
+    const newTempArraySec = [];
+
+    if (side === 'L') {
+      for (let i = 0; i < (newTempArray.length - 2); i++) {
+        newTempArraySec.push(newTempArray[i]);
+      }
+    }
+
+    if (side === 'R') {
+      for (let i = 2; i < (newTempArray.length); i++) {
+        newTempArraySec.push(newTempArray[i]);
+      }
+    }
+
+    newTempArraySec.forEach(obj => {
+      stringToReturn += obj;
+    });
+
+    return stringToReturn;
+
+  }
+
+  clearWhiteSpaces(receivedArray: any[]) {
+    const tempArray = [];
+    receivedArray.forEach(obj => {
+      if (obj !== '' && obj !== ' ') {
+        tempArray.push(obj);
+      }
+    });
+    return tempArray;
+  }
+
+  clearWhiteSpacesString(receivedArray: any[]) {
+    let tempString = '';
+    receivedArray.forEach(obj => {
+      if (obj !== '' && obj !== ' ') {
+        tempString += obj;
+      }
+    });
+    return tempString;
+  }
+
+  setSplitSpace(receivedSTring: string) {
+
+    if (receivedSTring.includes('+')) {
+      receivedSTring = receivedSTring.replace('+', ' + ');
+    }
+
+    if (receivedSTring.includes('-')) {
+      receivedSTring = receivedSTring.replace('-', ' - ');
+    }
+
+    if (receivedSTring.includes('/')) {
+      receivedSTring = receivedSTring.replace('/', ' / ');
+    }
+
+    if (receivedSTring.includes('*')) {
+      receivedSTring = receivedSTring.replace('*', ' * ');
+    }
+
+    if (receivedSTring.includes('(')) {
+      receivedSTring = receivedSTring.replace('(', ' ( ');
+    }
+
+    if (receivedSTring.includes(')')) {
+      receivedSTring = receivedSTring.replace(')', ' ) ');
+    }
+
+
+    return receivedSTring;
+
+  }
+
+
 
 }
