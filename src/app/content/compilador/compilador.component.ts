@@ -47,11 +47,7 @@ export class CompiladorComponent implements OnInit {
   ];
 
 
-  totalOperacion1 = 0;
-  totalOperacion2 = 0;
-  totalOperacion3 = 0;
-  totalOperacion4 = 0;
-  totalOperacion5 = 0;
+  totales = [];
 
   counter = 0;
 
@@ -567,31 +563,8 @@ export class CompiladorComponent implements OnInit {
 
     if (!(check.length >= 3)) {
 
-      console.log('counter is', this.counter);
+            this.totales.push(operationResult);
 
-      if ( this.counter === 0 ) {
-
-        this.totalOperacion1 = operationResult;
-
-      } else if ( this.counter === 1 ) {
-
-        this.totalOperacion2 = operationResult;
-
-      } else if ( this.counter === 2 ) {
-
-        this.totalOperacion3 = operationResult;
-
-      } else if ( this.counter === 3 ) {
-
-        this.totalOperacion4 = operationResult;
-
-      } else if ( this.counter === 4 ) {
-
-        this.totalOperacion5 = operationResult;
-
-      }
-
-      this.counter++;
     }
 
     return newNode;

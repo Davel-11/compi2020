@@ -44,20 +44,14 @@
       Resultados
     </ng-template>
     <div class="row mx-0">
+
       <label class="col-12" >
-        Nota: El Resultado de Operaciones dependerá del numero de operaciones enviadas en el archivo de texto (Max 5)
+        Nota: El Resultado de Operaciones dependerá del numero de operaciones enviadas en el archivo de texto       
       </label>
 
-      <label class="col-12">Resultado Operción 1: {{ totalOperacion1 }}</label>
-      <br />
-      <label class="col-12">Resultado Operción 2: {{ totalOperacion2 }}</label>
-      <br />
-      <label class="col-12">Resultado Operción 3: {{ totalOperacion3 }}</label>
-      <br />
-      <label class="col-12">Resultado Operción 4: {{ totalOperacion4 }}</label>
-      <br />
-      <label class="col-12">Resultado Operción 5: {{ totalOperacion5 }}</label>
-      <br />
+      <div class="row w-100" *ngFor="let i of totales; let indx = index">
+        <label class="col-12"> {{  'Resultado Operción: ' + (indx + 1) + ' = ' + i }}</label>
+      </div>
 
     </div>
   </mat-tab>
