@@ -174,7 +174,7 @@ export class CompiladorComponent implements OnInit {
         const response = receivedString.charAt(receivedString.length - 1);
 
         if (response !== ';') {
-          this.erroList.push({ index: indexIs, errorType: 'Semicolon' });
+          this.erroList.push({ index: indexIs, errorType: 'Semicolon' , message: 'Falta ;'});
         }
 
         indexIs++;
