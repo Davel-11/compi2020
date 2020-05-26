@@ -34,6 +34,7 @@ export class CompiladorComponent implements OnInit {
 
   dataValue = '';
 
+  displayedColumns2: string[] = [ 'line', 'index',  'message' ];
   erroList = [];
 
   binaryTree = [];
@@ -46,12 +47,12 @@ export class CompiladorComponent implements OnInit {
     { name: 'var3', value: 2, tipo: 'Real' }
   ];
 
-
   totales = [];
 
   counter = 0;
 
   tabIndex = 0;
+  listOfLines = [];
 
   constructor(
     public matDialog: MatDialog
@@ -111,29 +112,29 @@ export class CompiladorComponent implements OnInit {
     const textToProcess = this.form.get('input').value;
 
     //  PASO 1, PASAR EL TEXTO A LINEAS
-    let listOfLines = this.getLinesInArray(textToProcess);
+    this.listOfLines = this.getLinesInArray(textToProcess);
 
     //  PASO 2. QUITAR ESPACIOS EN BLANCO || trim
-    listOfLines = this.removeAllWhiteSpaces(listOfLines);
+    this.listOfLines = this.removeAllWhiteSpaces(this.listOfLines);
 
     //  PASO 3.  Validar PUNTO Y COMA
-    this.checkIfSemiColon(listOfLines);
+    this.checkIfSemiColon(this.listOfLines);
 
     //  PASO 4. Validar PARENTESIS
-    this.checkParentesis(listOfLines);
+    this.checkParentesis(this.listOfLines);
 
     //  PASO 5. * Validar estructura de operacion
-    this.checkFormulaStructure(listOfLines);
+    this.checkFormulaStructure(this.listOfLines);
 
 
     // CONFIRMAR SI HAY ERROR
     if (this.erroList.length > 0) {
-       this.callError(listOfLines);
+       this.callError(this.listOfLines);
     } else {
         // ** CREACION DE ARBOL BINARIO ** //
         this.tabIndex = 1;
         this.totales = [];
-        this.generateBinaryTree(listOfLines);
+        this.generateBinaryTree(this.listOfLines);
     }
 
     //
@@ -174,7 +175,7 @@ export class CompiladorComponent implements OnInit {
         const response = receivedString.charAt(receivedString.length - 1);
 
         if (response !== ';') {
-          this.erroList.push({ index: indexIs, errorType: 'Semicolon' , message: 'Falta ;'});
+          this.erroList.push({ line: this.listOfLines[indexIs], index: indexIs, errorType: 'Semicolon' , message: 'Falta ;'});
         }
 
         indexIs++;
@@ -211,6 +212,7 @@ export class CompiladorComponent implements OnInit {
 
     if (totalOpen !== totalClose) {
       this.erroList.push({
+        line: this.listOfLines[indexIs],
         index: indexIs,
         errorType: 'parentesis',
         message:
@@ -280,6 +282,7 @@ export class CompiladorComponent implements OnInit {
           obj[0] === ')'
         ) {
           this.erroList.push({
+            line: this.listOfLines[indexIs],
             index: indexIs,
             errorType: 'structure',
             message: 'Error de estructura - cerca de simbolo >> ' + sign,
@@ -297,6 +300,7 @@ export class CompiladorComponent implements OnInit {
         ) {
 
           this.erroList.push({
+            line: this.listOfLines[indexIs],
             index: indexIs,
             errorType: 'structure',
             message: 'Error de estructura - cerca de simbolo >> ' + sign,
@@ -314,6 +318,7 @@ export class CompiladorComponent implements OnInit {
           obj[obj.length - 1] === '('
         ) {
           this.erroList.push({
+            line: this.listOfLines[indexIs],
             index: indexIs,
             errorType: 'structure',
             message: '*Error de estructura - cerca de simbolo >>> ' + sign,
@@ -324,6 +329,7 @@ export class CompiladorComponent implements OnInit {
         // solo es un caracter
         if (obj === '+' || obj === '-' || obj === '/' || obj === '*' || obj === '' || obj === ';') {
           this.erroList.push({
+            line: this.listOfLines[indexIs],
             index: indexIs,
             errorType: 'structure',
             message: '*Error de estructura - cerca de simbolo >>> ' + sign,
@@ -340,6 +346,7 @@ export class CompiladorComponent implements OnInit {
           obj === ';'
         ) {
           this.erroList.push({
+            line: this.listOfLines[indexIs],
             index: indexIs,
             errorType: 'structure',
             message: 'Error de Estructura cerca de simbolo > ' + sign,
@@ -348,6 +355,7 @@ export class CompiladorComponent implements OnInit {
       } else if (obj.length === 0) {
 
         this.erroList.push({
+          line: this.listOfLines[indexIs],
           index: indexIs,
           errorType: 'structure',
           message: 'Error de Estructura cerca de simbolo > ' + sign,
@@ -359,6 +367,7 @@ export class CompiladorComponent implements OnInit {
     if (textToWork.length <= 3) {
 
       this.erroList.push({
+        line: this.listOfLines[indexIs],
         index: indexIs,
         errorType: 'structure',
         message:
