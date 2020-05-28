@@ -5,6 +5,7 @@ import { ThrowStmt } from '@angular/compiler';
 import { CompierrorComponent } from './compierror/compierror.component';
 import { ObjectUnsubscribedError } from 'rxjs';
 import { NodeObject } from './compilador.model';
+import {isNullOrUndefined} from "util";
 
 
 @Component({
@@ -37,7 +38,7 @@ export class CompiladorComponent implements OnInit {
   displayedColumns2: string[] = [ 'line', 'index',  'message' ];
   erroList = [];
 
-  binaryTree = [];
+  binaryTree : any;
   operaciones = ['+', '-', '/', '*'];
   startPriority = 0;
 
@@ -53,6 +54,15 @@ export class CompiladorComponent implements OnInit {
 
   tabIndex = 0;
   listOfLines = [];
+
+  priorityTable: any[] =  [];
+
+  priorities = [];
+
+  displayedColumns3 = ['initialOperation', 'nodeLeft', 'nodeRight', 'operation', 'operationResult', 'pendingToProcess', 'priority' ];
+
+  gTempArray = [];
+  globlaCounter = 0;
 
   constructor(
     public matDialog: MatDialog
@@ -76,12 +86,6 @@ export class CompiladorComponent implements OnInit {
       var lineArray = textLines[i].toString().split(' '); //  separa por espacios
       this.textArraySpacesGroupLines.push(lineArray); // añade el array por espacio al array de lineas
     }
-    // console.log('=====spread===============================');
-    // console.log(
-    //   'Array de spacios agrupado por lineas: ',
-    //   this.textArraySpacesGroupLines
-    // );
-    // console.log('====================================');
   }
 
   dataGeneralTable(arrayLineSpaces) {
@@ -89,11 +93,9 @@ export class CompiladorComponent implements OnInit {
     for (const item of arrayLineSpaces) {
       if (item.includes('As')) {
         if (item.length == 3) {
-          //console.log('decalración: ', item);
           this.declarationTokens.push({ token: item[0], category: 'Var', type: item[2], valToken: undefined, priority: undefined });
         }
         if (item.length == 5) {
-          // console.log('asignación: ', item);
           this.declarationTokens.push({ token: item[0], category: 'Var', type: item[2], valToken: item[4], priority: undefined });
 
 
@@ -101,13 +103,11 @@ export class CompiladorComponent implements OnInit {
       }
 
     }
-    console.log('======TABLITA==============================');
-    // console.log(this.declarationTokens);
     this.dataSource = this.declarationTokens;
-    console.log('====================================');
   }
 
   processData() {
+
     this.erroList = [];
     const textToProcess = this.form.get('input').value;
 
@@ -135,6 +135,7 @@ export class CompiladorComponent implements OnInit {
         this.tabIndex = 1;
         this.totales = [];
         this.generateBinaryTree(this.listOfLines);
+
     }
 
     //
@@ -404,7 +405,7 @@ export class CompiladorComponent implements OnInit {
 
   generateBinaryTree(formulas: string[]) {
 
-    this.binaryTree = [];
+    this.priorityTable = [];
 
     formulas.forEach(obj => {
 
@@ -421,8 +422,6 @@ export class CompiladorComponent implements OnInit {
           let minTree = miniTree[1];
           minTree = minTree.replace(';', '');
           this.startPriority = 0;
-
-          console.log('Operation to process', minTree);
 
           // PASO 1 -- CHECK FOR PARENTESIS
           const checking = minTree.includes('(');
@@ -470,7 +469,7 @@ export class CompiladorComponent implements OnInit {
           }
 
           primaryNodeInfo = {
-            priority: this.startPriority + 1,
+            priority: 0,
             initialOperation: obj,
             nodeLeft: miniTree[0],
             nodeRight: minTree,
@@ -480,13 +479,44 @@ export class CompiladorComponent implements OnInit {
             nextTree: nodeInfo ? nodeInfo : null
           }
 
-          this.binaryTree.push(primaryNodeInfo);
+          this.binaryTree = primaryNodeInfo;
 
         }
 
+        this.gTempArray = [];
+        this.globlaCounter++;
+
+        this.generatePriorityTable(this.binaryTree);
+        this.priorityTable.push(this.gTempArray);
 
       }
+
     });
+
+    console.log("this finaly priority Table ",  this.priorityTable );
+
+    // this.priorities =  this.priorityTable[0];
+
+  }
+
+  generatePriorityTable(binaryTree: any) {
+
+    let nodeData: NodeObject;
+    nodeData = binaryTree;
+
+      this.gTempArray.push({
+        initialOperation: nodeData.initialOperation,
+        nodeLeft:  nodeData.nodeLeft,
+        nodeRight: nodeData.nodeRight,
+        operation: nodeData.operation,
+        operationResult: nodeData.operationResult,
+        pendingToProcess: nodeData.pendingToProcess,
+        priority:  nodeData.priority
+      });
+
+      if (  nodeData.nextTree != null )  {
+        this.generatePriorityTable( nodeData.nextTree );
+      }
 
   }
 
