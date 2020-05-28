@@ -5,7 +5,7 @@ import { ThrowStmt } from '@angular/compiler';
 import { CompierrorComponent } from './compierror/compierror.component';
 import { ObjectUnsubscribedError } from 'rxjs';
 import { NodeObject } from './compilador.model';
-import {isNullOrUndefined} from "util";
+import {isNullOrUndefined, isNumber} from "util";
 
 
 @Component({
@@ -89,19 +89,27 @@ export class CompiladorComponent implements OnInit {
   }
 
   dataGeneralTable(arrayLineSpaces) {
-
     for (const item of arrayLineSpaces) {
-      if (item.includes('As')) {
+      if (item.includes("As")) {
         if (item.length == 3) {
-          this.declarationTokens.push({ token: item[0], category: 'Var', type: item[2], valToken: undefined, priority: undefined });
-        }
-        if (item.length == 5) {
-          this.declarationTokens.push({ token: item[0], category: 'Var', type: item[2], valToken: item[4], priority: undefined });
-
-
+          this.declarationTokens.push({
+            token: item[0],
+            category: "Var",
+            type: item[2],
+            valToken: undefined,
+            priority: undefined,
+          });
         }
       }
-
+      if (item.length == 3) {
+        if (item.includes("=")) {
+          for (let index = 0; index < this.declarationTokens.length; index++) {
+            if (this.declarationTokens[index].token === item[0]) {
+              this.declarationTokens[index].valToken = item[2];
+            }
+          }
+        }
+      }
     }
     this.dataSource = this.declarationTokens;
   }
@@ -126,21 +134,123 @@ export class CompiladorComponent implements OnInit {
     //  PASO 5. * Validar estructura de operacion
     this.checkFormulaStructure(this.listOfLines);
 
+    // PASO 6. Validar variables en las formulas
+    this.textToarrayTable(textToProcess);
+    this.dataGeneralTable(this.textArraySpacesGroupLines);
+    this.validateFormulaVariables(this.listOfLines);
+
 
     // CONFIRMAR SI HAY ERROR
     if (this.erroList.length > 0) {
-       this.callError(this.listOfLines);
+      this.callError(this.listOfLines);
     } else {
-        // ** CREACION DE ARBOL BINARIO ** //
-        this.tabIndex = 1;
-        this.totales = [];
-        this.generateBinaryTree(this.listOfLines);
+      // ** CREACION DE ARBOL BINARIO ** //
+      this.tabIndex = 1;
+      this.totales = [];
+      this.generateBinaryTree(this.listOfLines);
 
     }
 
-    //
-    this.textToarrayTable(textToProcess);
-    this.dataGeneralTable(this.textArraySpacesGroupLines);
+  }
+
+  validateFormulaVariables( receivedArray: any[] ) {
+
+    receivedArray.forEach( obj => {
+
+       if ( this.checkIfIsFormula(obj) ) {
+
+         // paso 0 quitar punto y coma;
+         let tempOb = obj.replace(';', '');
+
+         // paso 1, quitar el la variableinicial y el igual
+         if ( tempOb.includes('=') ) {
+
+           let tempSplit = tempOb.split('=');
+
+           // paso 2 limpiar lineas
+           let tempArray = this.clearLines(tempSplit[1]);
+
+           // paso 3 quitar, simbolos, espacios en blanco y numeros
+           let newTempArray = this.removeNotNeededData(tempArray);
+
+           // paso 4, Buscar variables en array
+           this.checkVariableValue(newTempArray);
+
+         }
+
+       }
+    });
+
+  }
+
+  checkVariableValue(variablesToCheck: any[]) {
+
+    for ( let i = 0; i < variablesToCheck.length; i++ ) {
+
+      for ( let j = 0; j < this.declarationTokens.length; j++ ) {
+
+           if ( variablesToCheck[i] === this.declarationTokens[j].token ) {
+
+                if ( String(this.declarationTokens[j].type).toLocaleLowerCase().includes('integer') ||
+                    String(this.declarationTokens[j].type).toLocaleLowerCase().includes('real')  ) {
+
+                } else {
+                  this.erroList.push({
+                    line: null,
+                    index: null,
+                    errorType: 'variableError' ,
+                    message: ' La variable ' + variablesToCheck[i]  + ' No se puede Procesar ' });
+                    break;
+                }
+
+           }
+
+      }
+
+    }
+
+  }
+
+  removeNotNeededData( array: any[] ) {
+    let tempArray = [];
+
+    array.forEach( obj => {
+
+      if (
+        obj != '+' &&
+        obj != '-' &&
+        obj != '*' &&
+        obj != '/' &&
+        obj != '=' &&
+        obj != '(' &&
+        obj != ')' &&
+        obj != '' &&
+        obj != ' ' &&
+        !obj.includes('.')
+      ) {
+        tempArray.push(obj);
+      }
+
+    })
+    return tempArray;
+  }
+
+  clearLines( line: string ) {
+
+    // PASO UNO HACER SPLIT POR SPACIOS
+    const initialSplit = line.split(' ');
+
+    // PASO DOS, LIMPIAR DOBLE O TRIPLE ESPACIO
+    let tempClean = this.clearWhiteSpacesString(initialSplit);
+
+    // PASO 3, REALIZAR SPLIT DE SPACIOS CONTROLADO
+    tempClean = this.setSplitSpace(tempClean);
+
+    // PASO 4, REALIZAR SPLIT DE SPACIOS,
+    let newArray = tempClean.split(' ');
+
+    return newArray;
+
   }
 
   getLinesInArray(text: any) {
@@ -833,7 +943,7 @@ export class CompiladorComponent implements OnInit {
   clearWhiteSpacesString(receivedArray: any[]) {
     let tempString = '';
     receivedArray.forEach(obj => {
-      if (obj !== '' && obj !== ' ') {
+      if (obj !== '' && obj !== ' ' && obj !== '  '  ) {
         tempString += obj;
       }
     });
