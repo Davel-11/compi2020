@@ -151,6 +151,8 @@ export class CompiladorComponent implements OnInit {
 
     }
 
+    console.log("this.declarationTokens is", this.declarationTokens);
+
   }
 
   validateFormulaVariables( receivedArray: any[] ) {
@@ -736,9 +738,12 @@ export class CompiladorComponent implements OnInit {
     if (Number(operationToCheck)) {
       processOne = Number(operationToCheck);
     } else {
-      this.variables.forEach(obj => {
-        if (obj.name === operationToCheck) {
-          processOne = obj.value;
+      this.declarationTokens.forEach(obj => {
+        if (obj.token.includes(variableOne) ) {
+          let value1 = obj.valToken.replace(';', '');
+          let value2 = Number(value1);
+          console.log("valor 2 op 1 ", value2 );
+          processOne = value2;
         }
       });
     }
@@ -746,9 +751,13 @@ export class CompiladorComponent implements OnInit {
     if (Number(operationToCheckSec)) {
       processSec = Number(operationToCheckSec);
     } else {
-      this.variables.forEach(obj => {
-        if (obj.name === operationToCheckSec) {
-          processSec = obj.value;
+      this.declarationTokens.forEach(obj => {
+
+        if (obj.token.includes(variableSec) ) {
+          let value1 = obj.valToken.replace(';', '');
+          let value2 = Number(value1);
+          console.log("valor 2 op 2 ", value2 );
+          processSec = value2;
         }
       });
     }
