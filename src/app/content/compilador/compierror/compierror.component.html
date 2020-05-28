@@ -1,10 +1,10 @@
 <h1 mat-dialog-title>Error de Compilación</h1>
 
 <div mat-dialog-content>
-  
+
     <div class="row mx-0" *ngFor="let i of finalErrorList ">
 
-            <div class="col-12 mt-2 line">                 
+            <div class="col-12 mt-2 line">
                 {{ i.line }}
             </div>
 
@@ -23,6 +23,11 @@
                   {{ 'Error en linea ' +  (i.index+1)  + ' - ' + (i.message?i.message:'')   }}
             </div>
 
+            <div *ngIf="i.errorType === 'variableError' "
+                 class="col-12 error" >
+              {{  (i.message?i.message:' ')   }}
+            </div>
+
     </div>
 
 </div>
@@ -33,6 +38,6 @@
       <div class="col-2">
         <button mat-raised-button color="primary" [mat-dialog-close]="data.animal" cdkFocusInitial>Regresar</button>
       </div>
-        
+
   </div>
 </div>
