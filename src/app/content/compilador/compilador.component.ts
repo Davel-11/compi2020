@@ -91,6 +91,7 @@ export class CompiladorComponent implements OnInit {
   dataGeneralTable(arrayLineSpaces) {
     for (const item of arrayLineSpaces) {
       if (item.includes("As")) {
+        //*******solo decalra variable******** */
         if (item.length == 3) {
           this.declarationTokens.push({
             token: item[0],
@@ -99,6 +100,22 @@ export class CompiladorComponent implements OnInit {
             valToken: undefined,
             priority: undefined,
           });
+        }
+        //*******decalra y asigna valor**** */
+        if (item.length == 5) {
+          this.declarationTokens.push({
+            token: item[0],
+            category: "Var",
+            type: item[2],
+            valToken: item[4],
+            priority: undefined,
+          });
+          for (let index = 0; index < this.declarationTokens.length; index++) {
+            if (this.declarationTokens[index].token === item[0]) {
+              this.declarationTokens[index].valToken = item[4];
+              this.declarationTokens[index].type = item[2];
+            }
+          }
         }
       }
       if (item.length == 3) {
@@ -110,6 +127,9 @@ export class CompiladorComponent implements OnInit {
           }
         }
       }
+    }
+    for (let index = 0; index < this.declarationTokens.length; index++) {
+        this.declarationTokens[index].index = index;
     }
     this.dataSource = this.declarationTokens;
   }
