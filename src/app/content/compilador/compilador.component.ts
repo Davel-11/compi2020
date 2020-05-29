@@ -21,7 +21,6 @@ export class CompiladorComponent implements OnInit {
     'category',
     'type',
     'valToken',
-    'priority',
   ];
   dataSource = [];
 
